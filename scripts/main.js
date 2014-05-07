@@ -7,7 +7,7 @@ GameState.prototype.preload = function() {
 };
 
 GameState.prototype.create = function() {
-  this.game.stage.backgroundColor = 0x4488cc;
+  this.game.stage.backgroundColor = 0x333333;
   
   this.game.add.existing(
       this.player = new Drum(this.game, {x:15, y:25}, 'bd1')
