@@ -2,13 +2,15 @@ var GameState = function(game){};
 
 GameState.prototype.preload = function() {
   this.game.load.image('dot', 'dot.png');
+  
+  this.game.load.audio('bd1', 'audio/78-BD1.mp3');
 };
 
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x4488cc;
   
   this.game.add.existing(
-      this.player = new Drum(this.game, 150, 250, this.game.input)
+      this.player = new Drum(this.game, {x:15, y:25}, 'bd1')
   );
   
   // FPS timer
@@ -26,7 +28,5 @@ GameState.prototype.update = function() {
   }
 }
 
-var GRID_SIZE = 32;
-var PIXEL_SIZE = 20;  // 20x32 is 640, a good size
 var game = new Phaser.Game(GRID_SIZE*PIXEL_SIZE, GRID_SIZE*PIXEL_SIZE, Phaser.AUTO, 'game');
 game.state.add('game', GameState, true);
