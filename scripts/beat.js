@@ -16,8 +16,10 @@ var PX_PER_BEAT = 4; // travel 4px per beat
 Beat.prototype.update = function() {
   var efrac = this.timer.elapsedSince(this.timeLast)/MS_PER_BEAT;
   efrac *= PX_PER_BEAT;
-  var pos = g2p({x:Math.floor(this.grid.x + this.vel.x*efrac),
-                y:Math.floor(this.grid.y + this.vel.y*efrac)});
+  var grid = {x:this.grid.x + this.vel.x*efrac,
+              y:this.grid.y + this.vel.y*efrac};
+  var gridWhole = {x:Math.floor(grid.x), y:Math.floor(grid.y)};
+  var pos = g2p(gridWhole);
   this.x = pos.x;
   this.y = pos.y;
   if (this.timer.elapsedSince(this.timeLast) > MS_PER_BEAT) {
