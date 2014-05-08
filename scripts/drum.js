@@ -31,7 +31,7 @@ var DrumDefs = {
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
   TAM: new DrumDef('TAM', [1, 2, 3])            // tambourine
 };
-var Drum = function(game, grid, drumdef) {
+var Drum = function(game, grid, drumdef, now, beatDirs) {
   //Sprite
   this.pos = g2p(grid);
   Phaser.Sprite.call(this,
@@ -41,22 +41,29 @@ var Drum = function(game, grid, drumdef) {
   this.alpha = ALPHA;
   this.sound = game.add.audio(drumdef.randomName());
   this.timer = game.time;
-  this.timeLast = this.timer.now;
+  this.timeLast = now;
+  this.beatDirs = beatDirs;
+  this.game = game;
 };
-
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
 Drum.prototype.constructor = Drum;
 
 Drum.prototype.update = function() {
-  if (this.timer.elapsedSince(this.timeLast) >
-      MS_PER_BEAT) {
+  if (this.timer.elapsedSince(this.timeLast) > MS_PER_BEAT) {
     this.sound.play();
     while (this.timeLast + MS_PER_BEAT < this.timer.now) {
       this.timeLast += MS_PER_BEAT;
     }
+    if (this.beatDirs !== undefined) {
+      // Create beats
+      for (var i = 0; i < this.beatDirs.length; i++) {
+        this.game.add.existing(new Beat(this.game,
+                                        this,
+                                        this.beatDirs[i],
+                                        this.timeLast));
+      }
+    }
   }
-  var elapsedFrac =
-    this.timer.elapsedSince(this.timeLast)/MS_PER_BEAT;
-  this.alpha = 1 -
-    Phaser.Easing.Cubic.Out(elapsedFrac)*(1 - ALPHA);
+  var efrac = this.timer.elapsedSince(this.timeLast)/MS_PER_BEAT;
+  this.alpha = 1 - Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
 };

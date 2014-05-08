@@ -1,7 +1,7 @@
 var GameState = function(game){};
 
 GameState.prototype.preload = function() {
-  this.game.load.image('dot', 'dot.png');
+  this.game.load.image('beat', 'images/beat.png');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -22,11 +22,16 @@ GameState.prototype.preload = function() {
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
+  var now = this.game.time.now;
   this.game.add.existing(
-      this.player = new Drum(this.game, {x:15, y:25}, DrumDefs.BD)
+      this.player = new Drum(this.game,
+                             {x:15, y:25},
+                             DrumDefs.BD,
+                             now,
+                             [{x:0, y:-1}])
   );
   this.game.add.existing(
-    new Drum(this.game, {x:10, y:20}, DrumDefs.CLA)
+    new Drum(this.game, {x:10, y:20}, DrumDefs.CLA, now)
   );
   
   // FPS timer
