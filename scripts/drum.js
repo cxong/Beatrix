@@ -1,14 +1,17 @@
 var ALPHA = 0.3;
 var DrumDef = function(name, numbers) {
-  this.name = name;
-  this.numbers = numbers;
+  this.length = numbers.length;
+  this.name = function(i) {
+    return name + numbers[i];
+  };
+  this.randomName = function() {
+    var i = Math.floor(Math.random() * numbers.length);
+    return this.name(i);
+  };
   this.filename = function(i) {
-    return "audio/78-" + name + numbers[i] + ".mp3";
+    return "audio/78-" + this.name(i) + ".mp3";
   };
-  this.getRandomName = function() {
-    return name + numbers[Math.floor(Math.random() * numbers.length)];
-  };
-}
+};
 var DrumDefs = {
   BD:  new DrumDef('BD',  [1, 2, 3]),           // bass drum
   BHI: new DrumDef('BHI', [1, 3]),              // bongos
@@ -29,10 +32,10 @@ var Drum = function(game, grid, drumdef) {
   this.pos = g2p(grid);
   Phaser.Sprite.call(this, game, this.pos.x, this.pos.y, 'dot');
   this.alpha = ALPHA;
-  this.sound = game.add.audio(drumdef.getRandomName());
+  this.sound = game.add.audio(drumdef.randomName());
   this.timer = game.time;
   this.timeLast = this.timer.now;
-}
+};
 
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
 Drum.prototype.constructor = Drum;
@@ -49,4 +52,4 @@ Drum.prototype.update = function() {
     this.timer.elapsedSince(this.timeLast)/MS_PER_BEAT;
   this.alpha = 1 -
     Phaser.Easing.Cubic.Out(elapsedFrac)*(1 - ALPHA);
-}
+};
