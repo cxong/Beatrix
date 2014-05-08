@@ -3,14 +3,19 @@ var GameState = function(game){};
 GameState.prototype.preload = function() {
   this.game.load.image('dot', 'dot.png');
   
-  this.game.load.audio('bd1', 'audio/78-BD1.mp3');
+  // Add all the drum defs
+  for (var drumdef in DrumDefs) {
+    for (var i = 0; i < drumdef.numbers.length; i++) {
+      this.game.load.audio(drumdef.name + i, drumdef.filename(i));
+    }
+  }
 };
 
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
   this.game.add.existing(
-      this.player = new Drum(this.game, {x:15, y:25}, 'bd1')
+      this.player = new Drum(this.game, {x:15, y:25}, DrumDefs.BD)
   );
   
   // FPS timer
