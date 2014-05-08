@@ -1,6 +1,7 @@
 var ALPHA = 0.3;
 var DrumDef = function(name, numbers) {
   this.length = numbers.length;
+  this.basename = name;
   this.name = function(i) {
     return name + numbers[i];
   };
@@ -8,8 +9,11 @@ var DrumDef = function(name, numbers) {
     var i = Math.floor(Math.random() * numbers.length);
     return this.name(i);
   };
-  this.filename = function(i) {
+  this.filenameAudio = function(i) {
     return "audio/78-" + this.name(i) + ".mp3";
+  };
+  this.filenameImage = function() {
+    return "images/" + name + ".png";
   };
 };
 var DrumDefs = {
@@ -21,7 +25,7 @@ var DrumDefs = {
   COW: new DrumDef('COW', [1, 2]),              // cowbell
   GUI: new DrumDef('GUI', [1, 2, 3, 4, 5, 6]),  // guiro
   HH:  new DrumDef('HH',  [1, 2, 3, 4]),        // hihat
-  HO:  new DrumDef('HO',  [1, 2, 3, 4]),        // ?
+  HO:  new DrumDef('HO',  [1, 2, 3, 4]),        // hihat open
   ME:  new DrumDef('ME',  [1, 2, 3, 4]),        // "metal beat"
   RIM: new DrumDef('RIM', [1, 2, 3]),           // rimshot
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
@@ -30,7 +34,10 @@ var DrumDefs = {
 var Drum = function(game, grid, drumdef) {
   //Sprite
   this.pos = g2p(grid);
-  Phaser.Sprite.call(this, game, this.pos.x, this.pos.y, 'dot');
+  Phaser.Sprite.call(this,
+                     game,
+                     this.pos.x, this.pos.y,
+                     drumdef.basename);
   this.alpha = ALPHA;
   this.sound = game.add.audio(drumdef.randomName());
   this.timer = game.time;

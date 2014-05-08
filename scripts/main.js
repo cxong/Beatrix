@@ -3,14 +3,18 @@ var GameState = function(game){};
 GameState.prototype.preload = function() {
   this.game.load.image('dot', 'dot.png');
   
-  // Add all the drum defs
+  // Add all the drum def assets
   for (var key in DrumDefs) {
     if (DrumDefs.hasOwnProperty(key)) {
       var drumdef= DrumDefs[key];
+      // Sounds
       for (var i = 0; i < drumdef.length; i++) {
         this.game.load.audio(drumdef.name(i),
-                             drumdef.filename(i));
+                             drumdef.filenameAudio(i));
       }
+      // Sprites
+      this.game.load.image(drumdef.basename,
+                           drumdef.filenameImage());
     }
   }
 };
