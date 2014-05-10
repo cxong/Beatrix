@@ -13,4 +13,4 @@ function p2g(pixel) {
 }
 
 var BPM = 120;  // Oops! Not graphics, sticking it here anyway
-var MS_PER_BEAT = 60 * 1000 / BPM;
+var MS_PER_MINIBEAT = 60 * 1000 / BPM / 4;

@@ -31,39 +31,57 @@ var DrumDefs = {
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
   TAM: new DrumDef('TAM', [1, 2, 3])            // tambourine
 };
-var Drum = function(game, grid, drumdef, now, beatDirs) {
+var Drum = function(thegame, grid, drumdef, now, beatDirs) {
   //Sprite
   var pos = g2p(grid);
   Phaser.Sprite.call(this,
-                     game,
+                     thegame.game,
                      pos.x, pos.y,
                      drumdef.basename);
   this.alpha = ALPHA;
-  this.sound = game.add.audio(drumdef.randomName());
-  this.timer = game.time;
+  this.sound = thegame.game.add.audio(drumdef.randomName());
+  this.timer = thegame.game.time;
   this.timeLast = now;
   this.beatDirs = beatDirs;
-  this.game = game;
+  this.heat = false;
+  this.thegame = thegame;
+  this.beatsElapsed = 0;
+  this.beatLast = now;
 };
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
 Drum.prototype.constructor = Drum;
 
 Drum.prototype.update = function() {
-  if (this.timer.elapsedSince(this.timeLast) > MS_PER_BEAT) {
-    this.sound.play();
-    while (this.timeLast + MS_PER_BEAT < this.timer.now) {
-      this.timeLast += MS_PER_BEAT;
+  if (this.timer.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
+    while (this.timeLast + MS_PER_MINIBEAT < this.timer.now) {
+      this.timeLast += MS_PER_MINIBEAT;
     }
     if (this.beatDirs !== undefined) {
-      // Create beats
-      for (var i = 0; i < this.beatDirs.length; i++) {
-        this.game.add.existing(new Beat(this.game,
-                                        this,
-                                        this.beatDirs[i],
-                                        this.timeLast));
+      this.beatsElapsed++;
+      if (this.beatsElapsed == 16) {
+        this.hit = true;
+        // Create beats
+        for (var i = 0; i < this.beatDirs.length; i++) {
+          this.thegame.beats.add(new Beat(this.thegame.game,
+                                          this,
+                                          this.beatDirs[i],
+                                          this.timeLast));
+        }
+        this.beatsElapsed = 0;
       }
     }
+    if (this.hit) {
+      this.sound.play();
+      this.hit = false;
+      this.beatLast = this.timeLast;
+    }
   }
-  var efrac = this.timer.elapsedSince(this.timeLast)/MS_PER_BEAT;
-  this.alpha = 1 - Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
+  var beatLen = MS_PER_MINIBEAT*4;
+  if (this.beatLast + beatLen < this.timer.now) {
+    this.alpha = ALPHA;
+  } else {
+    var efrac =
+      this.timer.elapsedSince(this.beatLast)/beatLen;
+    this.alpha = 1 - Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
+  }
 };
