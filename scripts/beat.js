@@ -1,11 +1,12 @@
 var Beat = function(game, parentDrum, vel, now) {
-  var pos = parentDrum.pos;
-  this.grid = p2g(pos);
+  this.grid = p2g(parentDrum);
   Phaser.Sprite.call(this,
                      game,
-                     pos.x, pos.y,
+                     parentDrum.x, parentDrum.y,
                      'beat');
   this.vel = vel;
+  this.alpha = 0.5;
+  this.blendMode = PIXI.blendModes.LIGHTEN;
   this.timer = game.time;
   this.timeLast = now;
 };

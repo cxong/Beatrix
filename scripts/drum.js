@@ -33,10 +33,10 @@ var DrumDefs = {
 };
 var Drum = function(game, grid, drumdef, now, beatDirs) {
   //Sprite
-  this.pos = g2p(grid);
+  var pos = g2p(grid);
   Phaser.Sprite.call(this,
                      game,
-                     this.pos.x, this.pos.y,
+                     pos.x, pos.y,
                      drumdef.basename);
   this.alpha = ALPHA;
   this.sound = game.add.audio(drumdef.randomName());
