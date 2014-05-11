@@ -9,7 +9,6 @@ var Beat = function(game, parentDrum, vel, now) {
   this.blendMode = PIXI.blendModes.LIGHTEN;
   this.timer = game.time;
   this.timeLast = now;
-  this.active = false;  // don't hit the parent drum
 };
 Beat.prototype = Object.create(Phaser.Sprite.prototype);
 Beat.prototype.constructor = Beat;
@@ -26,7 +25,6 @@ Beat.prototype.update = function() {
   if (this.timer.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
     this.grid.x += this.vel.x;
     this.grid.y += this.vel.y;
-    this.active = true;
     if (this.grid.x < 0 || this.grid.y >= GRID_SIZE ||
         this.grid.y < 0 || this.grid.y >= GRID_SIZE) {
         // out of bounds kill

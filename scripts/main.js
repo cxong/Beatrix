@@ -74,12 +74,12 @@ GameState.prototype.update = function() {
   if (this.game.input.activePointer.isDown) {
     var mouseGrid = p2g(this.game.input);
     // Find the drum under the mouse
-    if (this.draggedDrum == null) {
+    if (this.draggedDrum === null) {
       this.draggedDrum = getDrumAt(this.drums, mouseGrid);
     }
     if (this.draggedDrum) {
       // Move drum around
-      if (getDrumAt(this.drums, mouseGrid) == null) {
+      if (getDrumAt(this.drums, mouseGrid) === null) {
         var pixel = g2p(mouseGrid);
         this.draggedDrum.x = pixel.x;
         this.draggedDrum.y = pixel.y;
@@ -97,8 +97,7 @@ GameState.prototype.update = function() {
     for (var j = 0; j < this.beats.length; j++) {
       var beat = this.beats.getAt(j);
       var beatGrid = p2g(beat);
-      if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y &&
-          beat.active) {
+      if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
         drum.hit = true;
         break;
       }
