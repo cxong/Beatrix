@@ -27,7 +27,7 @@ GameState.prototype.create = function() {
   this.drums = this.game.add.group();
   this.drums.add(
     new Drum(this, {x:15, y:25}, DrumDefs.BD, now,
-             [{x:0, y:-1}])
+             [{x:0, y:-1}, {x:1, y:0}])
   );
   this.drums.add(new Drum(this, {x:1, y:1}, DrumDefs.BD, now));
   this.drums.add(new Drum(this, {x:1, y:2}, DrumDefs.BD, now));
@@ -66,7 +66,6 @@ GameState.prototype.update = function() {
       if (drumGrid.x == grid.x &&
           drumGrid.y == grid.y) {
         return drum;
-        break;
       }
     }
     return null;

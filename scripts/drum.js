@@ -45,7 +45,7 @@ var Drum = function(thegame, grid, drumdef, now, beatDirs) {
   this.beatDirs = beatDirs;
   this.heat = false;
   this.thegame = thegame;
-  this.beatsElapsed = 0;
+  this.beatsLeft = 0;
   this.beatLast = now;
 };
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
@@ -57,8 +57,7 @@ Drum.prototype.update = function() {
       this.timeLast += MS_PER_MINIBEAT;
     }
     if (this.beatDirs !== undefined) {
-      this.beatsElapsed++;
-      if (this.beatsElapsed == 16) {
+      if (this.beatsLeft === 0) {
         this.hit = true;
         // Create beats
         for (var i = 0; i < this.beatDirs.length; i++) {
@@ -67,8 +66,9 @@ Drum.prototype.update = function() {
                                           this.beatDirs[i],
                                           this.timeLast));
         }
-        this.beatsElapsed = 0;
+        this.beatsLeft = 16;
       }
+      this.beatsLeft--;
     }
     if (this.hit) {
       this.sound.play();

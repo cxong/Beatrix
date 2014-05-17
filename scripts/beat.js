@@ -14,14 +14,6 @@ Beat.prototype = Object.create(Phaser.Sprite.prototype);
 Beat.prototype.constructor = Beat;
 
 Beat.prototype.update = function() {
-  var efrac =
-    this.timer.elapsedSince(this.timeLast)/MS_PER_MINIBEAT;
-  var grid = {x:this.grid.x + this.vel.x*efrac,
-              y:this.grid.y + this.vel.y*efrac};
-  var gridWhole = {x:Math.floor(grid.x), y:Math.floor(grid.y)};
-  var pos = g2p(gridWhole);
-  this.x = pos.x;
-  this.y = pos.y;
   if (this.timer.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
     this.grid.x += this.vel.x;
     this.grid.y += this.vel.y;
@@ -33,5 +25,8 @@ Beat.prototype.update = function() {
     while (this.timeLast + MS_PER_MINIBEAT < this.timer.now) {
       this.timeLast += MS_PER_MINIBEAT;
     }
+    var pos = g2p(this.grid);
+    this.x = pos.x;
+    this.y = pos.y;
   }
 };
