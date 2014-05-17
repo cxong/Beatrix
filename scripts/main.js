@@ -22,26 +22,26 @@ GameState.prototype.preload = function() {
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
-  var now = this.game.time.now;
+  this.timeLast = this.game.time.now;
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
   this.drums.add(
-    new Drum(this, {x:15, y:25}, DrumDefs.BD, now,
+    new Drum(this, {x:15, y:25}, DrumDefs.BD,
              [{x:0, y:-1}, {x:1, y:0}])
   );
-  this.drums.add(new Drum(this, {x:1, y:1}, DrumDefs.BD, now));
-  this.drums.add(new Drum(this, {x:1, y:2}, DrumDefs.BD, now));
-  this.drums.add(new Drum(this, {x:10, y:20}, DrumDefs.CLA, now));
-  this.drums.add(new Drum(this, {x:13, y:9}, DrumDefs.SD, now));
-  this.drums.add(new Drum(this, {x:11, y:9}, DrumDefs.SD, now));
-  this.drums.add(new Drum(this, {x:1, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:2, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:3, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:4, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:5, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:6, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:7, y:4}, DrumDefs.HH, now));
-  this.drums.add(new Drum(this, {x:8, y:4}, DrumDefs.HH, now));
+  this.drums.add(new Drum(this, {x:1, y:1}, DrumDefs.BD, null));
+  this.drums.add(new Drum(this, {x:1, y:2}, DrumDefs.BD, null));
+  this.drums.add(new Drum(this, {x:10, y:20}, DrumDefs.CLA, null));
+  this.drums.add(new Drum(this, {x:13, y:9}, DrumDefs.SD, null));
+  this.drums.add(new Drum(this, {x:11, y:9}, DrumDefs.SD, null));
+  this.drums.add(new Drum(this, {x:1, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:2, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:3, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:4, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:5, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:6, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:7, y:4}, DrumDefs.HH, null));
+  this.drums.add(new Drum(this, {x:8, y:4}, DrumDefs.HH, null));
   this.draggedDrum = null;
   
   // FPS timer
@@ -53,6 +53,7 @@ GameState.prototype.create = function() {
 };
 
 GameState.prototype.update = function() {
+  var i;
   // Update FPS
   if (this.game.time.fps !== 0) {
     this.fpsText.setText(this.game.time.fps + ' FPS');
@@ -60,7 +61,7 @@ GameState.prototype.update = function() {
   
   // Check input: drag drums around
   var getDrumAt = function(drums, grid) {
-    for (var i = 0; i < drums.length; i++) {
+    for (i = 0; i < drums.length; i++) {
       var drum = drums.getAt(i);
       var drumGrid = p2g(drum);
       if (drumGrid.x == grid.x &&
@@ -88,9 +89,22 @@ GameState.prototype.update = function() {
     this.draggedDrum = null;
   }
   
+  // Move the beat
+  if (this.game.time.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
+    while (this.timeLast + MS_PER_MINIBEAT < this.game.time.now) {
+      this.timeLast += MS_PER_MINIBEAT;
+    }
+    for (i = 0; i < this.drums.length; i++) {
+      this.drums.getAt(i).updateBeat(this.timeLast);
+    }
+    for (i = 0; i < this.beats.length; i++) {
+      this.beats.getAt(i).updateBeat();
+    }
+  }
+  
   // Check collisions between beats and drums
   // Activate drums that collide with beats
-  for (var i = 0; i < this.drums.length; i++) {
+  for (i = 0; i < this.drums.length; i++) {
     var drum = this.drums.getAt(i);
     var drumGrid = p2g(drum);
     for (var j = 0; j < this.beats.length; j++) {
