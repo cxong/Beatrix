@@ -25,24 +25,35 @@ GameState.prototype.create = function() {
   this.timeLast = this.game.time.now;
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
-  this.drums.add(
-    new Drum(this, {x:15, y:25}, DrumDefs.BD,
-             [{x:0, y:-1}, {x:1, y:0}])
-  );
-  this.drums.add(new Drum(this, {x:1, y:1}, DrumDefs.BD, null));
-  this.drums.add(new Drum(this, {x:1, y:2}, DrumDefs.BD, null));
-  this.drums.add(new Drum(this, {x:10, y:20}, DrumDefs.CLA, null));
-  this.drums.add(new Drum(this, {x:13, y:9}, DrumDefs.SD, null));
-  this.drums.add(new Drum(this, {x:11, y:9}, DrumDefs.SD, null));
-  this.drums.add(new Drum(this, {x:1, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:2, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:3, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:4, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:5, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:6, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:7, y:4}, DrumDefs.HH, null));
-  this.drums.add(new Drum(this, {x:8, y:4}, DrumDefs.HH, null));
   this.draggedDrum = null;
+  // Load the level
+  for (var y = 0; y < GRID_SIZE; y++) {
+    var row = level1.cells[y];
+    for (var x = 0; x < GRID_SIZE; x++) {
+      var ch = row.charAt(x);
+      if (ch !== "0") {
+        var drumdef = level1[ch].drum;
+        var beats = null;
+        if (level1[ch].beat !== undefined) {
+          var beatDirs = level1[ch].beat;
+          beats = [];
+          for (var i = 0; i < level1[ch].beat.length; i++) {
+            var dir = level1[ch].beat[i];
+            if (dir === "up") {
+              beats.push({x: 0, y: -1});
+            } else if (dir === "right") {
+              beats.push({x: 1, y: 0});
+            } else if (dir === "down") {
+              beats.push({x: 0, y: 1});
+            } else {
+              beats.push({x: -1, y: 0});
+            }
+          }
+        }
+        this.drums.add(new Drum(this, {x:x, y:y}, drumdef, beats));
+      }
+    }
+  }
   
   // FPS timer
   // Turn off in prod
