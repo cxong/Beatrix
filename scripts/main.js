@@ -19,26 +19,32 @@ GameState.prototype.preload = function() {
   }
 };
 
-GameState.prototype.create = function() {
-  this.game.stage.backgroundColor = 0x333333;
-  
-  this.timeLast = this.game.time.now;
-  this.beats = this.game.add.group();
-  this.drums = this.game.add.group();
-  this.draggedDrum = null;
+function loadSolution(level) {
+  var solution = [];
+  for (var i = 0; i < level.solution[0].length; i++) {
+    var ch = level.solution[0].charAt(i);
+    if (ch !== "0") {
+      solution.push([level[ch].drum.name]);
+    } else {
+      solution.push([]);
+    }
+  }
+  return solution;
+}
+
+GameState.prototype.loadLevel = function(level) {
   // Load the level
   for (var y = 0; y < GRID_SIZE; y++) {
-    var row = level1.cells[y];
+    var row = level.cells[y];
     for (var x = 0; x < GRID_SIZE; x++) {
       var ch = row.charAt(x);
       if (ch !== "0") {
-        var drumdef = level1[ch].drum;
+        var drumdef = level[ch].drum;
         var beats = null;
-        if (level1[ch].beat !== undefined) {
-          var beatDirs = level1[ch].beat;
+        if (level[ch].beat !== undefined) {
           beats = [];
-          for (var i = 0; i < level1[ch].beat.length; i++) {
-            var dir = level1[ch].beat[i];
+          for (var i = 0; i < level[ch].beat.length; i++) {
+            var dir = level[ch].beat[i];
             if (dir === "up") {
               beats.push({x: 0, y: -1});
             } else if (dir === "right") {
@@ -54,6 +60,19 @@ GameState.prototype.create = function() {
       }
     }
   }
+  // Load solution
+  this.correctSolution = loadSolution(level);
+  this.solutionBeat = 0;
+};
+
+GameState.prototype.create = function() {
+  this.game.stage.backgroundColor = 0x333333;
+  
+  this.timeLast = this.game.time.now;
+  this.beats = this.game.add.group();
+  this.drums = this.game.add.group();
+  this.draggedDrum = null;
+  this.solution = [];
   
   // FPS timer
   // Turn off in prod
@@ -61,18 +80,13 @@ GameState.prototype.create = function() {
   this.fpsText = this.game.add.text(
     20, 20, '', { font: '16px Arial', fill: '#ffffff' }
   );
+  
+  this.loadLevel(level1);
 };
 
-GameState.prototype.update = function() {
-  var i;
-  // Update FPS
-  if (this.game.time.fps !== 0) {
-    this.fpsText.setText(this.game.time.fps + ' FPS');
-  }
-  
-  // Check input: drag drums around
+GameState.prototype.dragDrumAround = function() {
   var getDrumAt = function(drums, grid) {
-    for (i = 0; i < drums.length; i++) {
+    for (var i = 0; i < drums.length; i++) {
       var drum = drums.getAt(i);
       var drumGrid = p2g(drum);
       if (drumGrid.x == grid.x &&
@@ -86,7 +100,11 @@ GameState.prototype.update = function() {
     var mouseGrid = p2g(this.game.input);
     // Find the drum under the mouse
     if (this.draggedDrum === null) {
-      this.draggedDrum = getDrumAt(this.drums, mouseGrid);
+      var drum = getDrumAt(this.drums, mouseGrid);
+      // Can't drag drums that make beats
+      if (drum !== null && drum.beatDirs === null) {
+        this.draggedDrum = drum;
+      }
     }
     if (this.draggedDrum) {
       // Move drum around
@@ -99,23 +117,64 @@ GameState.prototype.update = function() {
   } else {
     this.draggedDrum = null;
   }
-  
-  // Move the beat
+};
+
+GameState.prototype.moveTheBeat = function() {
   if (this.game.time.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
     while (this.timeLast + MS_PER_MINIBEAT < this.game.time.now) {
       this.timeLast += MS_PER_MINIBEAT;
     }
+    var beats = [];
+    var i;
     for (i = 0; i < this.drums.length; i++) {
-      this.drums.getAt(i).updateBeat(this.timeLast);
+      var drum = this.drums.getAt(i);
+      if (drum.updateBeat(this.timeLast)) {
+        beats.push(drum.name);
+      }
     }
     for (i = 0; i < this.beats.length; i++) {
       this.beats.getAt(i).updateBeat();
     }
+    // Add the drums beaten this beat
+    this.solution.push(beats);
+    this.solutionBeat++;
+    if (this.solutionBeat == this.correctSolution.length) {
+      this.solutionBeat = 0;
+      // Check the solution
+      var isCorrect = true;
+      for (i = 0; i < this.correctSolution.length; i++) {
+        var ourBeats = this.solution[i].sort();
+        var correctBeats = this.correctSolution[i].sort();
+        if (ourBeats.length != correctBeats.length) {
+          isCorrect = false;
+        }
+        for (var j = 0; j < correctBeats; j++) {
+          if (ourBeats[j] != correctBeats[j]) {
+            isCorrect = false;
+          }
+        }
+      }
+      if (isCorrect) {
+        console.log("Correct!");
+      }
+      this.solution = [];
+    }
   }
+};
+
+GameState.prototype.update = function() {
+  // Update FPS
+  if (this.game.time.fps !== 0) {
+    this.fpsText.setText(this.game.time.fps + ' FPS');
+  }
+  
+  this.dragDrumAround();
+  
+  this.moveTheBeat();
   
   // Check collisions between beats and drums
   // Activate drums that collide with beats
-  for (i = 0; i < this.drums.length; i++) {
+  for (var i = 0; i < this.drums.length; i++) {
     var drum = this.drums.getAt(i);
     var drumGrid = p2g(drum);
     for (var j = 0; j < this.beats.length; j++) {
