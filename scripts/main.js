@@ -2,6 +2,9 @@ var GameState = function(game){};
 
 GameState.prototype.preload = function() {
   this.game.load.image('beat', 'images/beat.png');
+  this.game.load.image('black', 'images/black.png');
+  this.game.load.image('good', 'images/good.png');
+  this.game.load.image('bad', 'images/bad.png');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -24,7 +27,7 @@ function loadSolution(level) {
   for (var i = 0; i < level.solution[0].length; i++) {
     var ch = level.solution[0].charAt(i);
     if (ch !== "0") {
-      solution.push([level[ch].drum.name]);
+      solution.push([level[ch].drum]);
     } else {
       solution.push([]);
     }
@@ -32,7 +35,32 @@ function loadSolution(level) {
   return solution;
 }
 
+GameState.prototype.addSolutionDrums = function() {
+  this.correctSolutionDrums.removeAll(true);
+  var solutionRows = 1;
+  // Display background - big enough for solution plus one row
+  var left = (GRID_SIZE - this.correctSolution.length) / 2;
+  var bg = this.correctSolutionDrums.add(new Phaser.Sprite(this.game,
+                                                    left * PIXEL_SIZE,
+                                                    (GRID_SIZE - solutionRows - 1) * PIXEL_SIZE,
+                                                    'black'));
+  bg.width = this.correctSolution.length * PIXEL_SIZE;
+  bg.height = (solutionRows + 1) * PIXEL_SIZE;
+  for (var i = 0; i < this.correctSolution.length; i++) {
+    var x = left + i;
+    var drums = this.correctSolution[i];
+    for (var j = 0; j < drums.length; j++) {
+      var y = GRID_SIZE - solutionRows + j;
+      this.correctSolutionDrums.add(new Drum(this, {x:x, y:y}, drums[j], null));
+    }
+  }
+};
+
 GameState.prototype.loadLevel = function(level) {
+  // Load solution
+  this.correctSolution = loadSolution(level);
+  // Add pseudo-drums to display the solution
+  this.addSolutionDrums();
   // Load the level
   for (var y = 0; y < GRID_SIZE; y++) {
     var row = level.cells[y];
@@ -60,8 +88,6 @@ GameState.prototype.loadLevel = function(level) {
       }
     }
   }
-  // Load solution
-  this.correctSolution = loadSolution(level);
   this.solutionBeat = 0;
 };
 
@@ -69,6 +95,8 @@ GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
   this.timeLast = this.game.time.now;
+  this.correctSolutionDrums = this.game.add.group();
+  this.solutionDrums = this.game.add.group();
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
   this.draggedDrum = null;
@@ -124,6 +152,9 @@ GameState.prototype.moveTheBeat = function() {
     while (this.timeLast + MS_PER_MINIBEAT < this.game.time.now) {
       this.timeLast += MS_PER_MINIBEAT;
     }
+    if (this.solutionBeat == 0) {
+      this.solutionDrums.removeAll(true);
+    }
     var beats = [];
     var i;
     for (i = 0; i < this.drums.length; i++) {
@@ -137,27 +168,41 @@ GameState.prototype.moveTheBeat = function() {
     }
     // Add the drums beaten this beat
     this.solution.push(beats);
+    // Check our solution so far
+    var ourBeats = this.solution[this.solutionBeat].sort();
+    var correctBeats = [];
+    var isCorrect = true;
+    var j;
+    for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
+      correctBeats.push(this.correctSolution[this.solutionBeat][j].name);
+    }
+    correctBeats = correctBeats.sort();
+    if (ourBeats.length != correctBeats.length) {
+      isCorrect = false;
+    }
+    for (j = 0; j < correctBeats; j++) {
+      if (ourBeats[j] != correctBeats[j]) {
+        isCorrect = false;
+      }
+    }
+    // Add a sprite showing whether these beats are correct
+    var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
+    var solutionRows = 1;
+    var y = GRID_SIZE - solutionRows - 1;
+    this.solutionDrums.add(new Phaser.Sprite(this.game,
+                                             x * PIXEL_SIZE, y * PIXEL_SIZE,
+                                             isCorrect ? 'good' : 'bad'));
+    if (!isCorrect) {
+      this.isCorrect = false;
+    }
     this.solutionBeat++;
     if (this.solutionBeat == this.correctSolution.length) {
       this.solutionBeat = 0;
-      // Check the solution
-      var isCorrect = true;
-      for (i = 0; i < this.correctSolution.length; i++) {
-        var ourBeats = this.solution[i].sort();
-        var correctBeats = this.correctSolution[i].sort();
-        if (ourBeats.length != correctBeats.length) {
-          isCorrect = false;
-        }
-        for (var j = 0; j < correctBeats; j++) {
-          if (ourBeats[j] != correctBeats[j]) {
-            isCorrect = false;
-          }
-        }
-      }
-      if (isCorrect) {
+      if (this.isCorrect) {
         console.log("Correct!");
       }
       this.solution = [];
+      this.isCorrect = true;
     }
   }
 };
