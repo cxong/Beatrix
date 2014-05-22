@@ -38,7 +38,7 @@ var Drum = function(thegame, grid, drumdef, beatDirs) {
                      thegame.game,
                      pos.x, pos.y,
                      drumdef.basename);
-  this.alpha = ALPHA;
+  this.alpha = 1.0;
   this.sound = thegame.game.add.audio(drumdef.randomName());
   this.timer = thegame.game.time;
   this.beatDirs = beatDirs;
@@ -77,10 +77,10 @@ Drum.prototype.updateBeat = function(now) {
 Drum.prototype.update = function() {
   var beatLen = MS_PER_MINIBEAT*4;
   if (this.beatLast + beatLen < this.timer.now) {
-    this.alpha = ALPHA;
+    this.alpha = 1.0;
   } else {
     var efrac =
       this.timer.elapsedSince(this.beatLast)/beatLen;
-    this.alpha = 1 - Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
+    this.alpha = ALPHA + Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
   }
 };
