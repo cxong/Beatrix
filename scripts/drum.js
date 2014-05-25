@@ -52,7 +52,8 @@ var Drum = function(thegame, grid, drumdef, beatDirs) {
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
 Drum.prototype.constructor = Drum;
 
-Drum.prototype.updateBeat = function(now) {
+Drum.prototype.updateBeat = function() {
+  this.hit = false;
   if (this.beatDirs !== null) {
     if (this.beatsLeft === 0) {
       this.hit = true;
@@ -66,13 +67,10 @@ Drum.prototype.updateBeat = function(now) {
     }
     this.beatsLeft--;
   }
-  if (this.hit) {
-    this.sound.play();
-    this.hit = false;
-    this.beatLast = now;
-    return true;
-  }
-  return false;
+};
+Drum.prototype.play = function(now) {
+  this.sound.play();
+  this.beatLast = now;
 };
 Drum.prototype.update = function() {
   var beatLen = MS_PER_MINIBEAT*4;

@@ -152,27 +152,67 @@ GameState.prototype.moveTheBeat = function() {
     while (this.timeLast + MS_PER_MINIBEAT < this.game.time.now) {
       this.timeLast += MS_PER_MINIBEAT;
     }
-    if (this.solutionBeat == 0) {
+    if (this.solutionBeat === 0) {
       this.solutionDrums.removeAll(true);
     }
-    var beats = [];
     var i;
     for (i = 0; i < this.drums.length; i++) {
       var drum = this.drums.getAt(i);
-      if (drum.updateBeat(this.timeLast)) {
-        beats.push(drum.name);
-      }
+      drum.updateBeat();
     }
     for (i = 0; i < this.beats.length; i++) {
       this.beats.getAt(i).updateBeat();
     }
+
+    return true;
+  }
+  return false;
+};
+
+GameState.prototype.update = function() {
+  // Update FPS
+  if (this.game.time.fps !== 0) {
+    this.fpsText.setText(this.game.time.fps + ' FPS');
+  }
+  
+  this.dragDrumAround();
+  
+  if (this.moveTheBeat()) {
+    var i;
+    var j;
+    var drum;
+    // Check collisions between beats and drums
+    // Activate drums that collide with beats
+    for (i = 0; i < this.drums.length; i++) {
+      drum = this.drums.getAt(i);
+      var drumGrid = p2g(drum);
+      for (j = 0; j < this.beats.length; j++) {
+        var beat = this.beats.getAt(j);
+        var beatGrid = p2g(beat);
+        if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
+          drum.hit = true;
+          break;
+        }
+      }
+    }
+    
+    // Hit drums that have been hit with beats, or beat themselves
+    // Check solution too
+    var beats = [];
+    for (i = 0; i < this.drums.length; i++) {
+      drum = this.drums.getAt(i);
+      if (drum.hit) {
+        drum.play(this.timeLast);
+        beats.push(drum.name);
+      }
+    }
+    
     // Add the drums beaten this beat
     this.solution.push(beats);
     // Check our solution so far
     var ourBeats = this.solution[this.solutionBeat].sort();
     var correctBeats = [];
     var isCorrect = true;
-    var j;
     for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
       correctBeats.push(this.correctSolution[this.solutionBeat][j].name);
     }
@@ -203,32 +243,6 @@ GameState.prototype.moveTheBeat = function() {
       }
       this.solution = [];
       this.isCorrect = true;
-    }
-  }
-};
-
-GameState.prototype.update = function() {
-  // Update FPS
-  if (this.game.time.fps !== 0) {
-    this.fpsText.setText(this.game.time.fps + ' FPS');
-  }
-  
-  this.dragDrumAround();
-  
-  this.moveTheBeat();
-  
-  // Check collisions between beats and drums
-  // Activate drums that collide with beats
-  for (var i = 0; i < this.drums.length; i++) {
-    var drum = this.drums.getAt(i);
-    var drumGrid = p2g(drum);
-    for (var j = 0; j < this.beats.length; j++) {
-      var beat = this.beats.getAt(j);
-      var beatGrid = p2g(beat);
-      if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
-        drum.hit = true;
-        break;
-      }
     }
   }
 };
