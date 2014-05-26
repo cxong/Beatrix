@@ -5,6 +5,8 @@ GameState.prototype.preload = function() {
   this.game.load.image('black', 'images/black.png');
   this.game.load.image('good', 'images/good.png');
   this.game.load.image('bad', 'images/bad.png');
+
+  this.game.load.audio('yeah', 'audio/yeah.mp3');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -89,10 +91,13 @@ GameState.prototype.loadLevel = function(level) {
     }
   }
   this.solutionBeat = 0;
+  this.hasWon = false;
 };
 
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
+  
+  this.winSound = this.game.add.audio("yeah");
   
   this.timeLast = this.game.time.now;
   this.correctSolutionDrums = this.game.add.group();
@@ -169,24 +174,16 @@ GameState.prototype.moveTheBeat = function() {
   return false;
 };
 
-GameState.prototype.update = function() {
-  // Update FPS
-  if (this.game.time.fps !== 0) {
-    this.fpsText.setText(this.game.time.fps + ' FPS');
-  }
-  
-  this.dragDrumAround();
-  
+GameState.prototype.moveBeatAndHitDrums = function() {
   if (this.moveTheBeat()) {
     var i;
-    var j;
     var drum;
     // Check collisions between beats and drums
     // Activate drums that collide with beats
     for (i = 0; i < this.drums.length; i++) {
       drum = this.drums.getAt(i);
       var drumGrid = p2g(drum);
-      for (j = 0; j < this.beats.length; j++) {
+      for (var j = 0; j < this.beats.length; j++) {
         var beat = this.beats.getAt(j);
         var beatGrid = p2g(beat);
         if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
@@ -197,53 +194,99 @@ GameState.prototype.update = function() {
     }
     
     // Hit drums that have been hit with beats, or beat themselves
-    // Check solution too
-    var beats = [];
     for (i = 0; i < this.drums.length; i++) {
       drum = this.drums.getAt(i);
       if (drum.hit) {
         drum.play(this.timeLast);
-        beats.push(drum.name);
       }
     }
+    return true;
+  }
+  return false;
+};
+
+GameState.prototype.win = function() {
+  this.winSound.play('', 0, 0.3);
+  this.hasWon = true;
+  // Add win squares all around
+  var solutionXMin = (GRID_SIZE - this.correctSolution.length) / 2;
+  var solutionXMax = solutionXMin + this.correctSolution.length;
+  for (var x = 0; x < GRID_SIZE; x++) {
+    for (var y = 0; y < GRID_SIZE; y++) {
+      if (x === 0 || y === 0 || x === GRID_SIZE - 1 ||
+          (y === GRID_SIZE - 1 && (x < solutionXMin || x >= solutionXMax))) {
+        this.solutionDrums.add(new Phaser.Sprite(this.game,
+                                                 x * PIXEL_SIZE, y * PIXEL_SIZE,
+                                                 'good'));
+      }
+    }
+  }
+};
+
+GameState.prototype.update = function() {
+  // Update FPS
+  if (this.game.time.fps !== 0) {
+    this.fpsText.setText(this.game.time.fps + ' FPS');
+  }
+  
+  if (!this.hasWon) {
+    this.dragDrumAround();
     
-    // Add the drums beaten this beat
-    this.solution.push(beats);
-    // Check our solution so far
-    var ourBeats = this.solution[this.solutionBeat].sort();
-    var correctBeats = [];
-    var isCorrect = true;
-    for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
-      correctBeats.push(this.correctSolution[this.solutionBeat][j].name);
-    }
-    correctBeats = correctBeats.sort();
-    if (ourBeats.length != correctBeats.length) {
-      isCorrect = false;
-    }
-    for (j = 0; j < correctBeats; j++) {
-      if (ourBeats[j] != correctBeats[j]) {
+    if (this.moveBeatAndHitDrums()) {
+      var i;
+      var j;
+      // Check solution too
+      var beats = [];
+      for (i = 0; i < this.drums.length; i++) {
+        drum = this.drums.getAt(i);
+        if (drum.hit) {
+          beats.push(drum.name);
+        }
+      }
+      
+      // Add the drums beaten this beat
+      this.solution.push(beats);
+      // Check our solution so far
+      var ourBeats = this.solution[this.solutionBeat].sort();
+      var correctBeats = [];
+      var isCorrect = true;
+      for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
+        correctBeats.push(this.correctSolution[this.solutionBeat][j].basename);
+      }
+      correctBeats = correctBeats.sort();
+      if (ourBeats.length != correctBeats.length) {
         isCorrect = false;
+      } else {
+        for (j = 0; j < correctBeats.length; j++) {
+          if (ourBeats[j] != correctBeats[j]) {
+            isCorrect = false;
+          }
+        }
+      }
+      // Add a sprite showing whether these beats are correct
+      var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
+      var solutionRows = 1;
+      var y = GRID_SIZE - solutionRows - 1;
+      this.solutionDrums.add(new Phaser.Sprite(this.game,
+                                               x * PIXEL_SIZE, y * PIXEL_SIZE,
+                                               isCorrect ? 'good' : 'bad'));
+      if (!isCorrect) {
+        this.isCorrect = false;
+      }
+      this.solutionBeat++;
+      if (this.solutionBeat == this.correctSolution.length) {
+        if (this.isCorrect && !this.hasWon) {
+          this.win();
+        } else {
+          this.solution = [];
+          this.isCorrect = true;
+          this.solutionBeat = 0;
+        }
       }
     }
-    // Add a sprite showing whether these beats are correct
-    var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
-    var solutionRows = 1;
-    var y = GRID_SIZE - solutionRows - 1;
-    this.solutionDrums.add(new Phaser.Sprite(this.game,
-                                             x * PIXEL_SIZE, y * PIXEL_SIZE,
-                                             isCorrect ? 'good' : 'bad'));
-    if (!isCorrect) {
-      this.isCorrect = false;
-    }
-    this.solutionBeat++;
-    if (this.solutionBeat == this.correctSolution.length) {
-      this.solutionBeat = 0;
-      if (this.isCorrect) {
-        console.log("Correct!");
-      }
-      this.solution = [];
-      this.isCorrect = true;
-    }
+  } else {
+    // keep the beat
+    this.moveBeatAndHitDrums();
   }
 };
 
