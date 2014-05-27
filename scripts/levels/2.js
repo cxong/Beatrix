@@ -1,5 +1,5 @@
 var level2 = {
-  B : {drum: DrumDefs.BD, beat: ["down"]},
+  B : {drum: DrumDefs.BD, beat: ["down"], period: 16},
   b : {drum: DrumDefs.BD},
   s : {drum: DrumDefs.SD},
   h : {drum: DrumDefs.HO},

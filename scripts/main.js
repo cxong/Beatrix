@@ -10,6 +10,9 @@ GameState.prototype.preload = function() {
 
   this.game.load.audio('yeah', 'audio/yeah.mp3');
   this.game.load.audio('mmhmm', 'audio/mmhmm.mp3');
+  this.game.load.audio('rollover', 'audio/rollover.wav');
+  this.game.load.audio('move', 'audio/move.mp3');
+  this.game.load.audio('place', 'audio/place.mp3');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -56,7 +59,8 @@ GameState.prototype.addSolutionDrums = function() {
     var drums = this.correctSolution[i];
     for (var j = 0; j < drums.length; j++) {
       var y = GRID_SIZE - solutionRows + j;
-      this.correctSolutionDrums.add(new Drum(this, {x:x, y:y}, drums[j], null));
+      this.correctSolutionDrums.add(new Drum(this,
+                                             {x:x, y:y}, drums[j], null, null));
     }
   }
 };
@@ -100,7 +104,8 @@ GameState.prototype.loadLevel = function(level) {
             }
           }
         }
-        this.drums.add(new Drum(this, {x:x, y:y}, drumdef, beats));
+        this.drums.add(new Drum(this,
+                                {x:x, y:y}, drumdef, beats, level[ch].period));
       }
     }
   }
@@ -112,8 +117,13 @@ GameState.prototype.loadLevel = function(level) {
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
-  this.winSound = this.game.add.audio("yeah");
-  this.newLevelSound = this.game.add.audio("mmhmm");
+  this.sounds = {
+    win: this.game.add.audio("yeah"),
+    newLevel: this.game.add.audio("mmhmm"),
+    rollover: this.game.add.audio("rollover"),
+    move: this.game.add.audio("move"),
+    place: this.game.add.audio("place")
+  };
   
   this.timeLast = this.game.time.now;
   this.correctSolutionDrums = this.game.add.group();
@@ -146,26 +156,45 @@ GameState.prototype.dragDrumAround = function() {
     }
     return null;
   };
+  var drum;
+  var mouseGrid;
   if (this.game.input.activePointer.isDown) {
-    var mouseGrid = p2g(this.game.input);
+    this.rolloverDrum = null;
+    mouseGrid = p2g(this.game.input);
     // Find the drum under the mouse
     if (this.draggedDrum === null) {
-      var drum = getDrumAt(this.drums, mouseGrid);
+      drum = getDrumAt(this.drums, mouseGrid);
       // Can't drag drums that make beats
       if (drum !== null && drum.beatDirs === null) {
         this.draggedDrum = drum;
+        this.sounds.move.play();
       }
     }
     if (this.draggedDrum) {
       // Move drum around
       if (getDrumAt(this.drums, mouseGrid) === null) {
         var pixel = g2p(mouseGrid);
+        if (this.draggedDrum.x !== pixel.x || this.draggedDrum.y !== pixel.y) {
+          this.sounds.rollover.play();
+        }
         this.draggedDrum.x = pixel.x;
         this.draggedDrum.y = pixel.y;
       }
     }
   } else {
+    if (this.draggedDrum !== null) {
+      this.sounds.place.play();
+    }
     this.draggedDrum = null;
+    mouseGrid = p2g(this.game.input);
+    // play rollover sound if mouse over a drum
+    drum = getDrumAt(this.drums, mouseGrid);
+    // Can't drag drums that make beats
+    if (drum !== null && drum.beatDirs === null && drum !== this.rolloverDrum) {
+      this.sounds.rollover.play();
+      drum.beatLast = this.game.time.now;
+    }
+    this.rolloverDrum = drum;
   }
 };
 
@@ -223,7 +252,7 @@ GameState.prototype.moveBeatAndHitDrums = function() {
 };
 
 GameState.prototype.win = function() {
-  this.winSound.play('', 0, 0.3);
+  this.sounds.win.play('', 0, 0.3);
   this.hasWon = true;
   // Add win squares all around
   var solutionXMin = Math.floor((GRID_SIZE - this.correctSolution.length) / 2);
@@ -314,7 +343,7 @@ GameState.prototype.update = function() {
     if (this.game.input.activePointer.justPressed()) {
       this.levelIndex++;
       this.loadLevel(levels[this.levelIndex]);
-      this.newLevelSound.play('', 0, 0.3);
+      this.sounds.newLevel.play('', 0, 0.3);
     }
   }
 };

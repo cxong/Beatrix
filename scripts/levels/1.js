@@ -1,8 +1,8 @@
 var level1 = {
-  b : {drum: DrumDefs.BD, beat: ["right"]},
+  b : {drum: DrumDefs.BD, beat: ["right"], period: 8},
   s : {drum: DrumDefs.SD},
   solution : [
-    "b       s       "
+    "b   s   "
   ],
   cells : [
 "                                ",

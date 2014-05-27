@@ -7,7 +7,7 @@ var level0 = {
   r : {drum: DrumDefs.RIM},
   i : {drum: DrumDefs.BHI},
   s : {drum: DrumDefs.SD},
-  B : {drum: DrumDefs.BD, beat: ["right", "up"]},
+  B : {drum: DrumDefs.BD, beat: ["right", "up"], period: 16},
   o : {drum: DrumDefs.HO},
   cells : [
 "                                ",

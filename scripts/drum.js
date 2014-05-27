@@ -31,7 +31,7 @@ var DrumDefs = {
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
   TAM: new DrumDef('TAM', [1, 2, 3])            // tambourine
 };
-var Drum = function(thegame, grid, drumdef, beatDirs) {
+var Drum = function(thegame, grid, drumdef, beatDirs, period) {
   //Sprite
   var pos = g2p(grid);
   Phaser.Sprite.call(this,
@@ -48,6 +48,7 @@ var Drum = function(thegame, grid, drumdef, beatDirs) {
   this.beatLast = 0;
   this.hit = false;
   this.name = drumdef.basename;
+  this.period = period;
 };
 Drum.prototype = Object.create(Phaser.Sprite.prototype);
 Drum.prototype.constructor = Drum;
@@ -63,7 +64,7 @@ Drum.prototype.updateBeat = function() {
                                         this,
                                         this.beatDirs[i]));
       }
-      this.beatsLeft = 16;
+      this.beatsLeft = this.period;
     }
     this.beatsLeft--;
   }
