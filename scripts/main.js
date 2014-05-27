@@ -1,4 +1,4 @@
-var levels = [level1, level2];
+var levels = [level0, level1, level2];
 
 var GameState = function(game){};
 
@@ -9,6 +9,7 @@ GameState.prototype.preload = function() {
   this.game.load.image('bad', 'images/bad.png');
 
   this.game.load.audio('yeah', 'audio/yeah.mp3');
+  this.game.load.audio('yeah', 'audio/mmhmm.mp3');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -44,10 +45,10 @@ GameState.prototype.addSolutionDrums = function() {
   var solutionRows = 1;
   // Display background - big enough for solution plus one row
   var left = (GRID_SIZE - this.correctSolution.length) / 2;
+  var pixel = g2p({x:left, y:GRID_SIZE - solutionRows - 1});
   var bg = this.correctSolutionDrums.add(new Phaser.Sprite(this.game,
-                                                    left * PIXEL_SIZE,
-                                                    (GRID_SIZE - solutionRows - 1) * PIXEL_SIZE,
-                                                    'black'));
+                                                           pixel.x, pixel.y,
+                                                           'black'));
   bg.width = this.correctSolution.length * PIXEL_SIZE;
   bg.height = (solutionRows + 1) * PIXEL_SIZE;
   for (var i = 0; i < this.correctSolution.length; i++) {
@@ -68,9 +69,12 @@ GameState.prototype.loadLevel = function(level) {
   this.drums.removeAll(true);
   this.draggedDrum = null;
   this.solution = [];
+  this.correctSolution = [[]];
   
   // Load solution
-  this.correctSolution = loadSolution(level);
+  if (level.solution !== undefined) {
+    this.correctSolution = loadSolution(level);
+  }
   // Add pseudo-drums to display the solution
   this.addSolutionDrums();
   // Load the level
@@ -102,12 +106,14 @@ GameState.prototype.loadLevel = function(level) {
   }
   this.solutionBeat = 0;
   this.hasWon = false;
+  this.alwaysWin = level.alwaysWin;
 };
 
 GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
   this.winSound = this.game.add.audio("yeah");
+  this.newLeveSound = this.game.add.audio("mmhmm");
   
   this.timeLast = this.game.time.now;
   this.correctSolutionDrums = this.game.add.group();
@@ -172,12 +178,12 @@ GameState.prototype.moveTheBeat = function() {
       this.solutionDrums.removeAll(true);
     }
     var i;
+    for (i = 0; i < this.beats.length; i++) {
+      this.beats.getAt(i).updateBeat();
+    }
     for (i = 0; i < this.drums.length; i++) {
       var drum = this.drums.getAt(i);
       drum.updateBeat();
-    }
-    for (i = 0; i < this.beats.length; i++) {
-      this.beats.getAt(i).updateBeat();
     }
 
     return true;
@@ -220,14 +226,15 @@ GameState.prototype.win = function() {
   this.winSound.play('', 0, 0.3);
   this.hasWon = true;
   // Add win squares all around
-  var solutionXMin = (GRID_SIZE - this.correctSolution.length) / 2;
+  var solutionXMin = Math.floor((GRID_SIZE - this.correctSolution.length) / 2);
   var solutionXMax = solutionXMin + this.correctSolution.length;
   for (var x = 0; x < GRID_SIZE; x++) {
     for (var y = 0; y < GRID_SIZE; y++) {
       if (x === 0 || y === 0 || x === GRID_SIZE - 1 ||
-          (y === GRID_SIZE - 1 && (x < solutionXMin || x >= solutionXMax))) {
+          (y === GRID_SIZE - 1 && (x < solutionXMin || x >= solutionXMax))) {  
+        var pixel = g2p({x:x, y:y});
         this.solutionDrums.add(new Phaser.Sprite(this.game,
-                                                 x * PIXEL_SIZE, y * PIXEL_SIZE,
+                                                 pixel.x, pixel.y,
                                                  'good'));
       }
     }
@@ -278,14 +285,18 @@ GameState.prototype.update = function() {
       var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
       var solutionRows = 1;
       var y = GRID_SIZE - solutionRows - 1;
+      var pixel = g2p({x:x, y:y});
       this.solutionDrums.add(new Phaser.Sprite(this.game,
-                                               x * PIXEL_SIZE, y * PIXEL_SIZE,
+                                               pixel.x, pixel.y,
                                                isCorrect ? 'good' : 'bad'));
       if (!isCorrect) {
         this.isCorrect = false;
       }
       this.solutionBeat++;
       if (this.solutionBeat == this.correctSolution.length) {
+        if (this.alwaysWin) {
+          this.isCorrect = true;
+        }
         if (this.isCorrect && !this.hasWon) {
           this.win();
         } else {
@@ -303,6 +314,7 @@ GameState.prototype.update = function() {
     if (this.game.input.activePointer.justPressed()) {
       this.levelIndex++;
       this.loadLevel(levels[this.levelIndex]);
+      this.newLeveSound.play('', 0, 0.3);
     }
   }
 };
