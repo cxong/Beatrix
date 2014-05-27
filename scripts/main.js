@@ -1,3 +1,5 @@
+var levels = [level1, level2];
+
 var GameState = function(game){};
 
 GameState.prototype.preload = function() {
@@ -28,7 +30,7 @@ function loadSolution(level) {
   var solution = [];
   for (var i = 0; i < level.solution[0].length; i++) {
     var ch = level.solution[0].charAt(i);
-    if (ch !== "0") {
+    if (ch !== " ") {
       solution.push([level[ch].drum]);
     } else {
       solution.push([]);
@@ -59,6 +61,14 @@ GameState.prototype.addSolutionDrums = function() {
 };
 
 GameState.prototype.loadLevel = function(level) {
+  // Reset everything
+  this.correctSolutionDrums.removeAll(true);
+  this.solutionDrums.removeAll(true);
+  this.beats.removeAll(true);
+  this.drums.removeAll(true);
+  this.draggedDrum = null;
+  this.solution = [];
+  
   // Load solution
   this.correctSolution = loadSolution(level);
   // Add pseudo-drums to display the solution
@@ -68,7 +78,7 @@ GameState.prototype.loadLevel = function(level) {
     var row = level.cells[y];
     for (var x = 0; x < GRID_SIZE; x++) {
       var ch = row.charAt(x);
-      if (ch !== "0") {
+      if (ch !== " ") {
         var drumdef = level[ch].drum;
         var beats = null;
         if (level[ch].beat !== undefined) {
@@ -114,7 +124,8 @@ GameState.prototype.create = function() {
     20, 20, '', { font: '16px Arial', fill: '#ffffff' }
   );
   
-  this.loadLevel(level1);
+  this.levelIndex = 0;
+  this.loadLevel(levels[this.levelIndex]);
 };
 
 GameState.prototype.dragDrumAround = function() {
@@ -287,6 +298,12 @@ GameState.prototype.update = function() {
   } else {
     // keep the beat
     this.moveBeatAndHitDrums();
+    
+    // Move to next level
+    if (this.game.input.activePointer.justPressed()) {
+      this.levelIndex++;
+      this.loadLevel(levels[this.levelIndex]);
+    }
   }
 };
 
