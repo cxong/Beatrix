@@ -9,7 +9,7 @@ GameState.prototype.preload = function() {
   this.game.load.image('bad', 'images/bad.png');
 
   this.game.load.audio('yeah', 'audio/yeah.mp3');
-  this.game.load.audio('yeah', 'audio/mmhmm.mp3');
+  this.game.load.audio('mmhmm', 'audio/mmhmm.mp3');
   
   // Add all the drum def assets
   for (var key in DrumDefs) {
@@ -113,7 +113,7 @@ GameState.prototype.create = function() {
   this.game.stage.backgroundColor = 0x333333;
   
   this.winSound = this.game.add.audio("yeah");
-  this.newLeveSound = this.game.add.audio("mmhmm");
+  this.newLevelSound = this.game.add.audio("mmhmm");
   
   this.timeLast = this.game.time.now;
   this.correctSolutionDrums = this.game.add.group();
@@ -314,7 +314,7 @@ GameState.prototype.update = function() {
     if (this.game.input.activePointer.justPressed()) {
       this.levelIndex++;
       this.loadLevel(levels[this.levelIndex]);
-      this.newLeveSound.play('', 0, 0.3);
+      this.newLevelSound.play('', 0, 0.3);
     }
   }
 };
