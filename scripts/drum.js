@@ -75,7 +75,7 @@ Drum.prototype.play = function(now) {
   this.beatLast = now;
 };
 Drum.prototype.update = function() {
-  var beatLen = MS_PER_MINIBEAT*4;
+  var beatLen = 60 * 1000 / 120 / 4;
   if (this.beatLast + beatLen < this.timer.now) {
     this.alpha = 1.0;
   } else {

@@ -85,6 +85,7 @@ GameState.prototype.loadLevel = function(level) {
   this.solution = [];
   this.correctSolution = [[]];
   this.solutionRows = 1;
+  this.BPM = 120;
   
   // Load solution
   if (level.solution !== undefined) {
@@ -120,6 +121,9 @@ GameState.prototype.loadLevel = function(level) {
   this.solutionBeat = 0;
   this.hasWon = false;
   this.alwaysWin = level.alwaysWin;
+  if (level.BPM !== undefined) {
+    this.BPM = level.BPM;
+  }
 };
 
 GameState.prototype.create = function() {
@@ -207,9 +211,9 @@ GameState.prototype.dragDrumAround = function() {
 };
 
 GameState.prototype.moveTheBeat = function() {
-  if (this.game.time.elapsedSince(this.timeLast) > MS_PER_MINIBEAT) {
-    while (this.timeLast + MS_PER_MINIBEAT < this.game.time.now) {
-      this.timeLast += MS_PER_MINIBEAT;
+  if (this.game.time.elapsedSince(this.timeLast) > msPerMinibeat(this.BPM)) {
+    while (this.timeLast + msPerMinibeat(this.BPM) < this.game.time.now) {
+      this.timeLast += msPerMinibeat(this.BPM);
     }
     if (this.solutionBeat === 0) {
       this.solutionDrums.removeAll(true);

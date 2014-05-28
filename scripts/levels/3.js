@@ -1,4 +1,5 @@
 var level3 = {
+  BPM: 80,
   B : {drum: DrumDefs.BD, beat: ["right"], period: 12},
   b : {drum: DrumDefs.BD, bounce: "down"},
   s : {drum: DrumDefs.SD, bounce: "left"},

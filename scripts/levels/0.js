@@ -1,5 +1,6 @@
 var level0 = {
   alwaysWin: true,
+  BPM: 133,
   b : {drum: DrumDefs.BD},
   m : {drum: DrumDefs.ME},
   a : {drum: DrumDefs.CLA},
