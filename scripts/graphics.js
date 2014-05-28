@@ -11,6 +11,17 @@ function p2g(pixel) {
     y:Math.floor(pixel.y / PIXEL_SIZE)
   };
 }
+function dir2vel(dir) {
+  if (dir === "up") {
+    return {x: 0, y: -1};
+  } else if (dir === "right") {
+    return {x: 1, y: 0};
+  } else if (dir === "down") {
+    return {x: 0, y: 1};
+  } else {
+    return {x: -1, y: 0};
+  }
+}
 
 var BPM = 120;  // Oops! Not graphics, sticking it here anyway
 var MS_PER_MINIBEAT = 60 * 1000 / BPM / 4;

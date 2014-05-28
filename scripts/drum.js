@@ -31,7 +31,7 @@ var DrumDefs = {
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
   TAM: new DrumDef('TAM', [1, 2, 3])            // tambourine
 };
-var Drum = function(thegame, grid, drumdef, beatDirs, period) {
+var Drum = function(thegame, grid, drumdef, bounceDir, beatDirs, period) {
   //Sprite
   var pos = g2p(grid);
   Phaser.Sprite.call(this,
@@ -41,6 +41,7 @@ var Drum = function(thegame, grid, drumdef, beatDirs, period) {
   this.alpha = 1.0;
   this.sound = thegame.game.add.audio(drumdef.randomName());
   this.timer = thegame.game.time;
+  this.bounceDir = bounceDir;
   this.beatDirs = beatDirs;
   this.heat = false;
   this.thegame = thegame;

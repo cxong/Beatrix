@@ -1,4 +1,4 @@
-var levels = [level0, level1, level2];
+var levels = [level0, level1, level2, level3];
 
 var GameState = function(game){};
 
@@ -32,12 +32,16 @@ GameState.prototype.preload = function() {
 
 function loadSolution(level) {
   var solution = [];
-  for (var i = 0; i < level.solution[0].length; i++) {
-    var ch = level.solution[0].charAt(i);
-    if (ch !== " ") {
-      solution.push([level[ch].drum]);
-    } else {
-      solution.push([]);
+  var i;
+  for (i = 0; i < level.solution[0].length; i++) {
+    solution.push([]);
+  }
+  for (var row = 0; row < level.solution.length; row++) {
+    for (i = 0; i < level.solution[row].length; i++) {
+      var ch = level.solution[row].charAt(i);
+      if (ch !== " ") {
+        solution[i].push(level[ch].drum);
+      }
     }
   }
   return solution;
@@ -45,22 +49,28 @@ function loadSolution(level) {
 
 GameState.prototype.addSolutionDrums = function() {
   this.correctSolutionDrums.removeAll(true);
-  var solutionRows = 1;
+  this.solutionRows = 1;
+  var i;
+  for (i = 0; i < this.correctSolution.length; i++) {
+    this.solutionRows = Math.max(this.solutionRows, this.correctSolution[i].length);
+  }
+
   // Display background - big enough for solution plus one row
   var left = (GRID_SIZE - this.correctSolution.length) / 2;
-  var pixel = g2p({x:left, y:GRID_SIZE - solutionRows - 1});
+  var pixel = g2p({x:left, y:GRID_SIZE - this.solutionRows - 1});
   var bg = this.correctSolutionDrums.add(new Phaser.Sprite(this.game,
                                                            pixel.x, pixel.y,
                                                            'black'));
   bg.width = this.correctSolution.length * PIXEL_SIZE;
-  bg.height = (solutionRows + 1) * PIXEL_SIZE;
-  for (var i = 0; i < this.correctSolution.length; i++) {
+  bg.height = (this.solutionRows + 1) * PIXEL_SIZE;
+  for (i = 0; i < this.correctSolution.length; i++) {
     var x = left + i;
     var drums = this.correctSolution[i];
     for (var j = 0; j < drums.length; j++) {
-      var y = GRID_SIZE - solutionRows + j;
+      var y = GRID_SIZE - this.solutionRows + j;
       this.correctSolutionDrums.add(new Drum(this,
-                                             {x:x, y:y}, drums[j], null, null));
+                                             {x:x, y:y}, drums[j],
+                                             null, null, null));
     }
   }
 };
@@ -74,6 +84,7 @@ GameState.prototype.loadLevel = function(level) {
   this.draggedDrum = null;
   this.solution = [];
   this.correctSolution = [[]];
+  this.solutionRows = 1;
   
   // Load solution
   if (level.solution !== undefined) {
@@ -88,24 +99,21 @@ GameState.prototype.loadLevel = function(level) {
       var ch = row.charAt(x);
       if (ch !== " ") {
         var drumdef = level[ch].drum;
+        var bounce = null;
+        if (level[ch].bounce !== undefined) {
+          bounce = dir2vel(level[ch].bounce);
+        }
         var beats = null;
         if (level[ch].beat !== undefined) {
           beats = [];
           for (var i = 0; i < level[ch].beat.length; i++) {
             var dir = level[ch].beat[i];
-            if (dir === "up") {
-              beats.push({x: 0, y: -1});
-            } else if (dir === "right") {
-              beats.push({x: 1, y: 0});
-            } else if (dir === "down") {
-              beats.push({x: 0, y: 1});
-            } else {
-              beats.push({x: -1, y: 0});
-            }
+            beats.push(dir2vel(dir));
           }
         }
         this.drums.add(new Drum(this,
-                                {x:x, y:y}, drumdef, beats, level[ch].period));
+                                {x:x, y:y}, drumdef,
+                                bounce, beats, level[ch].period));
       }
     }
   }
@@ -234,6 +242,11 @@ GameState.prototype.moveBeatAndHitDrums = function() {
         var beatGrid = p2g(beat);
         if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
           drum.hit = true;
+          // Check if this is a bouncy drum
+          // Change the beat direction
+          if (drum.bounceDir !== null) {
+            beat.vel = drum.bounceDir;
+          }
           break;
         }
       }
@@ -312,8 +325,7 @@ GameState.prototype.update = function() {
       }
       // Add a sprite showing whether these beats are correct
       var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
-      var solutionRows = 1;
-      var y = GRID_SIZE - solutionRows - 1;
+      var y = GRID_SIZE - this.solutionRows - 1;
       var pixel = g2p({x:x, y:y});
       this.solutionDrums.add(new Phaser.Sprite(this.game,
                                                pixel.x, pixel.y,
