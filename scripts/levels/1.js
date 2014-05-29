@@ -1,4 +1,4 @@
-var level1 = {
+var level1_1 = {
   b : {drum: DrumDefs.BD, beat: ["right"], period: 8},
   s : {drum: DrumDefs.SD},
   solution : [
@@ -23,6 +23,49 @@ var level1 = {
 "                                ",
 "                                ",
 "                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level1_2 = {
+  b : {drum: DrumDefs.BD, beat: ["right"], period: 8},
+  s : {drum: DrumDefs.SD},
+  h : {drum: DrumDefs.HH},
+  solution : [
+    "b h s h "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"          h                     ",
+"                                ",
+"               h                ",
+"                                ",
+"            b                   ",
+"                                ",
+"                 s              ",
 "                                ",
 "                                ",
 "                                ",

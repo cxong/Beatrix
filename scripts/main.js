@@ -1,4 +1,7 @@
-var levels = [level0, level1, level2, level3];
+var levels = [level0,
+              level1_1, level1_2,
+              level2_1, level2_2, level2_3,
+              level3];
 
 var GameState = function(game){};
 
@@ -85,6 +88,7 @@ GameState.prototype.loadLevel = function(level) {
   this.solution = [];
   this.correctSolution = [[]];
   this.solutionRows = 1;
+  this.solutionBeat = 0;
   this.BPM = 120;
   
   // Load solution
