@@ -1,7 +1,7 @@
 var levels = [level0,
               level1_1, level1_2,
               level2_1, level2_2, level2_3, level2_4, level2_5,
-              level3_1, level3_2];
+              level3_1, level3_2, level3_3, level3_4];
 
 var GameState = function(game){};
 

@@ -43,6 +43,98 @@ var level3_1 = {
 };
 
 var level3_2 = {
+  BPM: 135,
+  B : {drum: DrumDefs.BD, beat: ["right"], period: 8},
+  b : {drum: DrumDefs.BD},
+  s : {drum: DrumDefs.SD, bounce: "left"},
+  o : {drum: DrumDefs.HO},
+  solution : [
+    "Bbsbbbsb",
+    "o o o o "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                 b              ",
+"           b     o              ",
+"                                ",
+"              B                 ",
+"             s                  ",
+"          s       o             ",
+"          o                     ",
+"             b  o               ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level3_3 = {
+  BPM: 115,
+  B : {drum: DrumDefs.BD, beat: ["right"], period: 16},
+  b : {drum: DrumDefs.BD, bounce: "down"},
+  s : {drum: DrumDefs.SD, bounce: "left"},
+  t : {drum: DrumDefs.HH},
+  solution : [
+    "b   s  sb b s b ",
+    "tttttttttttttttt"
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                 t              ",
+"           b     t              ",
+"                      t         ",
+"                          B     ",
+"             s      t           ",
+"          s       t             ",
+"          t       t t s         ",
+"             b  t               ",
+"              t    t            ",
+"                t      t        ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level3_4 = {
   BPM: 80,
   B : {drum: DrumDefs.BD, beat: ["right"], period: 12},
   b : {drum: DrumDefs.BD, bounce: "down"},
