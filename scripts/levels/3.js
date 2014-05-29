@@ -1,4 +1,48 @@
-var level3 = {
+var level3_1 = {
+  BPM: 80,
+  b : {drum: DrumDefs.BD, beat: ["right"], period: 8},
+  s : {drum: DrumDefs.SD, bounce: "left"},
+  h : {drum: DrumDefs.HH, bounce: "down"},
+  solution : [
+    "b h s h "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"               s                ",
+"                                ",
+"             b                  ",
+"                                ",
+"          h                     ",
+"                 h              ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level3_2 = {
   BPM: 80,
   B : {drum: DrumDefs.BD, beat: ["right"], period: 12},
   b : {drum: DrumDefs.BD, bounce: "down"},

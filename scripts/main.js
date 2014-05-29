@@ -1,7 +1,7 @@
 var levels = [level0,
               level1_1, level1_2,
               level2_1, level2_2, level2_3,
-              level3];
+              level3_1, level3_2];
 
 var GameState = function(game){};
 
@@ -50,7 +50,7 @@ function loadSolution(level) {
   return solution;
 }
 
-GameState.prototype.addSolutionDrums = function() {
+GameState.prototype.addSolutionDrums = function(level) {
   this.correctSolutionDrums.removeAll(true);
   this.solutionRows = 1;
   var i;
@@ -66,14 +66,16 @@ GameState.prototype.addSolutionDrums = function() {
                                                            'black'));
   bg.width = this.correctSolution.length * PIXEL_SIZE;
   bg.height = (this.solutionRows + 1) * PIXEL_SIZE;
-  for (i = 0; i < this.correctSolution.length; i++) {
-    var x = left + i;
-    var drums = this.correctSolution[i];
-    for (var j = 0; j < drums.length; j++) {
-      var y = GRID_SIZE - this.solutionRows + j;
-      this.correctSolutionDrums.add(new Drum(this,
-                                             {x:x, y:y}, drums[j],
-                                             null, null, null));
+  for (var row = 0; row < level.solution.length; row++) {
+    var y = GRID_SIZE - this.solutionRows + row;
+    for (i = 0; i < level.solution[row].length; i++) {
+      var x = left + i;
+      var ch = level.solution[row].charAt(i);
+      if (ch !== " ") {
+        this.correctSolutionDrums.add(new Drum(this,
+                                               {x:x, y:y}, level[ch].drum,
+                                               null, null, null));
+      }
     }
   }
 };
@@ -96,7 +98,7 @@ GameState.prototype.loadLevel = function(level) {
     this.correctSolution = loadSolution(level);
   }
   // Add pseudo-drums to display the solution
-  this.addSolutionDrums();
+  this.addSolutionDrums(level);
   // Load the level
   for (var y = 0; y < GRID_SIZE; y++) {
     var row = level.cells[y];
