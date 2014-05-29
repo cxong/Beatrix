@@ -50,13 +50,13 @@ var level2_2 = {
   o : {drum: DrumDefs.HO},
   solution : [
     "b   s   ",
-    "o h o h "
+    "  h o h "
   ],
   cells : [
 "                                ",
 "                                ",
 "          s                     ",
-"     b         o                ",
+"     b                          ",
 "             h                  ",
 "        o                       ",
 "          h                     ",
@@ -89,6 +89,96 @@ var level2_2 = {
 };
 
 var level2_3 = {
+  b : {drum: DrumDefs.BD, beat: ["right"], period: 8},
+  s : {drum: DrumDefs.SD},
+  h : {drum: DrumDefs.HH},
+  solution : [
+    "b   s   ",
+    "h   h   "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                     h          ",
+"                                ",
+"       b                        ",
+"             s                  ",
+"                      h         ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level2_4 = {
+  BPM: 114,
+  b : {drum: DrumDefs.BD, beat: ["up", "left"], period: 12},
+  s : {drum: DrumDefs.SD},
+  h : {drum: DrumDefs.HH},
+  o : {drum: DrumDefs.HO},
+  solution : [
+    "b     s     ",
+    "o h h o h h "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"            h                   ",
+"                  h             ",
+"       h                        ",
+"              bo                ",
+"            s                   ",
+"    h                           ",
+"       o                        ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
+
+var level2_5 = {
   BPM: 112,
   B : {drum: DrumDefs.BD, beat: ["down"], period: 16},
   b : {drum: DrumDefs.BD},
