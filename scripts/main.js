@@ -7,6 +7,7 @@ var GameState = function(game){};
 
 GameState.prototype.preload = function() {
   this.game.load.image('beat', 'images/beat.png');
+  this.game.load.image('bg', 'images/bg.png');
   this.game.load.image('black', 'images/black.png');
   this.game.load.image('good', 'images/good.png');
   this.game.load.image('bad', 'images/bad.png');
@@ -148,12 +149,27 @@ GameState.prototype.create = function() {
   };
   
   this.timeLast = this.game.time.now;
+  this.bg = this.game.add.group();
   this.correctSolutionDrums = this.game.add.group();
   this.solutionDrums = this.game.add.group();
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
   this.draggedDrum = null;
   this.solution = [];
+  
+  // Create checkerboard background
+  for (var i = 0; i < GRID_SIZE; i++) {
+    for (var j = 0; j < GRID_SIZE; j++) {
+      if (((i % 2) === 0) ^ ((j % 2) === 0)) {
+        var pixel = g2p({x: i, y: j});
+        var check = this.bg.add(new Phaser.Sprite(this.game,
+                                                  pixel.x, pixel.y,
+                                                  'bg'));
+        check.width = PIXEL_SIZE;
+        check.height = PIXEL_SIZE;
+      }
+    }
+  }
   
   // FPS timer
   // Turn off in prod
