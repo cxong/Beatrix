@@ -1,7 +1,8 @@
 var levels = [level0,
               level1_1, level1_2,
               level2_1, level2_2, level2_3, level2_4, level2_5,
-              level3_1, level3_2, level3_3, level3_4];
+              level3_1, level3_2, level3_3, level3_4,
+              levelbonus_1];
 
 var GameState = function(game){};
 
@@ -201,10 +202,10 @@ GameState.prototype.create = function() {
   
   // FPS timer
   // Turn off in prod
-  this.game.time.advancedTiming = true;
+  /*this.game.time.advancedTiming = true;
   this.fpsText = this.game.add.text(
     20, 20, '', { font: '16px Arial', fill: '#ffffff' }
-  );
+  );*/
   
   this.levelIndex = 0;
   this.loadLevel(levels[this.levelIndex]);
@@ -374,9 +375,9 @@ GameState.prototype.win = function() {
 
 GameState.prototype.update = function() {
   // Update FPS
-  if (this.game.time.fps !== 0) {
+  /*if (this.game.time.fps !== 0) {
     this.fpsText.setText(this.game.time.fps + ' FPS');
-  }
+  }*/
   
   if (!this.hasWon) {
     this.dragAndInput();
