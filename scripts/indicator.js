@@ -1,5 +1,8 @@
 var Indicator = function(thegame, pos) {
-  Phaser.Sprite.call(this, thegame.game, pos.x, pos.y, "beat");
+  Phaser.Sprite.call(this, thegame.game,
+                     pos.x, pos.y, "indicator");
+  this.width = PIXEL_SIZE;
+  this.height = PIXEL_SIZE;
   this.timer = thegame.game.time;
   this.counter = 0;
 };

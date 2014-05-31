@@ -10,6 +10,7 @@ GameState.prototype.preload = function() {
   this.game.load.image('bg', 'images/bg.png');
   this.game.load.image('black', 'images/black.png');
   this.game.load.image('black2', 'images/black2.png');
+  this.game.load.image('indicator', 'images/indicator.png');
   this.game.load.image('good', 'images/good.png');
   this.game.load.image('bad', 'images/bad.png');
 
