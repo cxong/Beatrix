@@ -27,7 +27,7 @@ var DrumDefs = {
   HH:  new DrumDef('HH',  [1, 2, 3, 4]),        // hihat
   HO:  new DrumDef('HO',  [1, 2, 3, 4]),        // hihat open
   ME:  new DrumDef('ME',  [1, 2, 3, 4]),        // "metal beat"
-  RIM: new DrumDef('RIM', [1, 2, 3]),           // rimshot
+  RIM: new DrumDef('RIM', [2, 3]),              // rimshot
   SD:  new DrumDef('SD',  [1, 2, 3, 4]),        // snare drum
   TAM: new DrumDef('TAM', [1, 2, 3])            // tambourine
 };

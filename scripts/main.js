@@ -2,7 +2,9 @@ var levels = [screenStart,
               level1_1, level1_2, level2_1,
               screenEasy,
               level2_2, level2_3, level2_4, level2_5,
+              screenTricky,
               level3_1, level3_2, level3_3, level3_4,
+              screenWin, screenCredits,
               levelbonus_1];
 
 var GameState = function(game){};
