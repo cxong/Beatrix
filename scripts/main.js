@@ -9,6 +9,7 @@ GameState.prototype.preload = function() {
   this.game.load.image('beat', 'images/beat.png');
   this.game.load.image('bg', 'images/bg.png');
   this.game.load.image('black', 'images/black.png');
+  this.game.load.image('black2', 'images/black2.png');
   this.game.load.image('good', 'images/good.png');
   this.game.load.image('bad', 'images/bad.png');
 
@@ -69,6 +70,23 @@ GameState.prototype.addSolutionDrums = function(level) {
                                                            'black'));
   bg.width = this.correctSolution.length * PIXEL_SIZE;
   bg.height = (this.solutionRows + 1) * PIXEL_SIZE;
+  // Add checkerboard to solution too
+  // Create checkerboard background
+  for (i = 0; i < this.correctSolution.length; i++) {
+    for (var j = 0; j < this.solutionRows + 1; j++) {
+      if (((i % 2) === 0) ^ ((j % 2) === 0)) {
+        pixel = g2p({
+          x: left + i,
+          y: GRID_SIZE - this.solutionRows - 1 + j});
+        var check = this.correctSolutionDrums.add(
+          new Phaser.Sprite(this.game,
+                            pixel.x, pixel.y,
+                            'black2'));
+        check.width = PIXEL_SIZE;
+        check.height = PIXEL_SIZE;
+      }
+    }
+  }
   if (level.solution !== undefined) {
     for (var row = 0; row < level.solution.length; row++) {
       var y = GRID_SIZE - this.solutionRows + row;
