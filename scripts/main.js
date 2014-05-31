@@ -35,15 +35,17 @@ GameState.prototype.preload = function() {
 
 function loadSolution(level) {
   var solution = [];
-  var i;
-  for (i = 0; i < level.solution[0].length; i++) {
-    solution.push([]);
-  }
-  for (var row = 0; row < level.solution.length; row++) {
-    for (i = 0; i < level.solution[row].length; i++) {
-      var ch = level.solution[row].charAt(i);
-      if (ch !== " ") {
-        solution[i].push(level[ch].drum);
+  if (level.solution !== undefined) {
+    var i;
+    for (i = 0; i < level.solution[0].length; i++) {
+      solution.push([]);
+    }
+    for (var row = 0; row < level.solution.length; row++) {
+      for (i = 0; i < level.solution[row].length; i++) {
+        var ch = level.solution[row].charAt(i);
+        if (ch !== " ") {
+          solution[i].push(level[ch].drum);
+        }
       }
     }
   }
@@ -66,15 +68,17 @@ GameState.prototype.addSolutionDrums = function(level) {
                                                            'black'));
   bg.width = this.correctSolution.length * PIXEL_SIZE;
   bg.height = (this.solutionRows + 1) * PIXEL_SIZE;
-  for (var row = 0; row < level.solution.length; row++) {
-    var y = GRID_SIZE - this.solutionRows + row;
-    for (i = 0; i < level.solution[row].length; i++) {
-      var x = left + i;
-      var ch = level.solution[row].charAt(i);
-      if (ch !== " ") {
-        this.correctSolutionDrums.add(new Drum(this,
-                                               {x:x, y:y}, level[ch].drum,
-                                               null, null, null));
+  if (level.solution !== undefined) {
+    for (var row = 0; row < level.solution.length; row++) {
+      var y = GRID_SIZE - this.solutionRows + row;
+      for (i = 0; i < level.solution[row].length; i++) {
+        var x = left + i;
+        var ch = level.solution[row].charAt(i);
+        if (ch !== " ") {
+          this.correctSolutionDrums.add(new Drum(this,
+                                                 {x:x, y:y}, level[ch].drum,
+                                                 null, null, null));
+        }
       }
     }
   }
