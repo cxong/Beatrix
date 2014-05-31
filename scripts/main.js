@@ -55,6 +55,7 @@ function loadSolution(level) {
 }
 
 GameState.prototype.addSolutionDrums = function(level) {
+  this.solutionBg.removeAll(true);
   this.correctSolutionDrums.removeAll(true);
   this.solutionRows = 1;
   var i;
@@ -63,22 +64,23 @@ GameState.prototype.addSolutionDrums = function(level) {
   }
 
   // Display background - big enough for solution plus one row
+  var sRect = getSolutionRect(this.solutionRows,
+                              this.correctSolution.length);
   var left = (GRID_SIZE - this.correctSolution.length) / 2;
-  var pixel = g2p({x:left, y:GRID_SIZE - this.solutionRows - 1});
-  var bg = this.correctSolutionDrums.add(new Phaser.Sprite(this.game,
-                                                           pixel.x, pixel.y,
-                                                           'black'));
-  bg.width = this.correctSolution.length * PIXEL_SIZE;
-  bg.height = (this.solutionRows + 1) * PIXEL_SIZE;
+  var bg = this.solutionBg.add(new Phaser.Sprite(this.game,
+                                                 sRect.x, sRect.y,
+                                                 'black'));
+  bg.width = sRect.width;
+  bg.height = sRect.height;
   // Add checkerboard to solution too
   // Create checkerboard background
   for (i = 0; i < this.correctSolution.length; i++) {
     for (var j = 0; j < this.solutionRows + 1; j++) {
       if (((i % 2) === 0) ^ ((j % 2) === 0)) {
-        pixel = g2p({
+        var pixel = g2p({
           x: left + i,
           y: GRID_SIZE - this.solutionRows - 1 + j});
-        var check = this.correctSolutionDrums.add(
+        var check = this.solutionBg.add(
           new Phaser.Sprite(this.game,
                             pixel.x, pixel.y,
                             'black2'));
@@ -105,7 +107,9 @@ GameState.prototype.addSolutionDrums = function(level) {
 
 GameState.prototype.loadLevel = function(level) {
   // Reset everything
+  this.solutionBg.removeAll(true);
   this.correctSolutionDrums.removeAll(true);
+  this.solutionBeats.removeAll(true);
   this.solutionDrums.removeAll(true);
   this.beats.removeAll(true);
   this.drums.removeAll(true);
@@ -169,13 +173,16 @@ GameState.prototype.create = function() {
   
   this.timeLast = this.game.time.now;
   this.bg = this.game.add.group();
+  this.solutionBg = this.game.add.group();
   this.correctSolutionDrums = this.game.add.group();
+  this.solutionBeats = this.game.add.group();
   this.solutionDrums = this.game.add.group();
   this.indicators = this.game.add.group();
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
   this.draggedDrum = null;
   this.solution = [];
+  this.playAnyway = false;
   
   // Create checkerboard background
   for (var i = 0; i < GRID_SIZE; i++) {
@@ -202,7 +209,7 @@ GameState.prototype.create = function() {
   this.loadLevel(levels[this.levelIndex]);
 };
 
-GameState.prototype.dragDrumAround = function() {
+GameState.prototype.dragAndInput = function() {
   var getDrumAt = function(drums, grid) {
     for (var i = 0; i < drums.length; i++) {
       var drum = drums.getAt(i);
@@ -214,49 +221,77 @@ GameState.prototype.dragDrumAround = function() {
     }
     return null;
   };
-  var drum;
-  var mouseGrid;
-  if (this.game.input.activePointer.isDown) {
-    this.rolloverDrum = null;
-    mouseGrid = p2g(this.game.input);
-    // Find the drum under the mouse
-    if (this.draggedDrum === null) {
+  // Mouse overs: drum or solution
+  var mouseGrid = p2g(this.game.input);
+  var drum = getDrumAt(this.drums, mouseGrid);
+  // Can't drag drums that make beats
+  var canDragDrum = drum !== null && drum.beatDirs === null;
+  var sRect = getSolutionRect(this.solutionRows,
+                              this.correctSolution.length);
+  var isOverSolution =
+    this.game.input.x >= sRect.x &&
+    this.game.input.x < sRect.x + sRect.width &&
+    this.game.input.y >= sRect.y &&
+    this.game.input.y < sRect.y + sRect.height;
+  if (canDragDrum || isOverSolution) {
+    this.game.canvas.style.cursor = "pointer";
+  } else {
+    this.game.canvas.style.cursor = "default";
+  }
+  if (this.solutionBeats.length === 0) {
+    if (this.game.input.activePointer.isDown) {
+      // Check if this is a solution click; if so add beats
+      if (isOverSolution &&
+          this.solutionBeats.length === 0) {
+        var dir = {x: 1, y: 0};
+        for (i = 0; i < this.solutionRows; i++) {
+          var pos = {
+            x: sRect.x,
+            y: (GRID_SIZE - this.solutionRows + i) * PIXEL_SIZE};
+          this.solutionBeats.add(new Beat(this.game, pos, dir));
+        }
+        this.playAnyway = true;
+      }
+      
+      this.rolloverDrum = null;
+      mouseGrid = p2g(this.game.input);
+      // Find the drum under the mouse
+      if (this.draggedDrum === null) {
+        if (canDragDrum) {
+          this.draggedDrum = drum;
+          this.sounds.move.play();
+        }
+      }
+      if (this.draggedDrum) {
+        // Move drum around
+        if (getDrumAt(this.drums, mouseGrid) === null) {
+          var pixel = g2p(mouseGrid);
+          if (this.draggedDrum.x !== pixel.x || this.draggedDrum.y !== pixel.y) {
+            this.sounds.rollover.play();
+          }
+          this.draggedDrum.x = pixel.x;
+          this.draggedDrum.y = pixel.y;
+        }
+      }
+    } else {
+      if (this.draggedDrum !== null) {
+        this.sounds.place.play();
+      }
+      this.draggedDrum = null;
+      mouseGrid = p2g(this.game.input);
+      // play rollover sound if mouse over a drum
       drum = getDrumAt(this.drums, mouseGrid);
       // Can't drag drums that make beats
-      if (drum !== null && drum.beatDirs === null) {
-        this.draggedDrum = drum;
-        this.sounds.move.play();
+      if (drum !== null && drum.beatDirs === null && drum !== this.rolloverDrum) {
+        this.sounds.rollover.play();
+        drum.beatLast = this.game.time.now;
       }
+      this.rolloverDrum = drum;
     }
-    if (this.draggedDrum) {
-      // Move drum around
-      if (getDrumAt(this.drums, mouseGrid) === null) {
-        var pixel = g2p(mouseGrid);
-        if (this.draggedDrum.x !== pixel.x || this.draggedDrum.y !== pixel.y) {
-          this.sounds.rollover.play();
-        }
-        this.draggedDrum.x = pixel.x;
-        this.draggedDrum.y = pixel.y;
-      }
-    }
-  } else {
-    if (this.draggedDrum !== null) {
-      this.sounds.place.play();
-    }
-    this.draggedDrum = null;
-    mouseGrid = p2g(this.game.input);
-    // play rollover sound if mouse over a drum
-    drum = getDrumAt(this.drums, mouseGrid);
-    // Can't drag drums that make beats
-    if (drum !== null && drum.beatDirs === null && drum !== this.rolloverDrum) {
-      this.sounds.rollover.play();
-      drum.beatLast = this.game.time.now;
-    }
-    this.rolloverDrum = drum;
   }
 };
 
-GameState.prototype.moveTheBeat = function() {
+GameState.prototype.moveTheBeat = function(beats, drums) {
   if (this.game.time.elapsedSince(this.timeLast) > msPerMinibeat(this.BPM)) {
     while (this.timeLast + msPerMinibeat(this.BPM) < this.game.time.now) {
       this.timeLast += msPerMinibeat(this.BPM);
@@ -265,11 +300,11 @@ GameState.prototype.moveTheBeat = function() {
       this.solutionDrums.removeAll(true);
     }
     var i;
-    for (i = 0; i < this.beats.length; i++) {
-      this.beats.getAt(i).updateBeat();
+    for (i = 0; i < beats.length; i++) {
+      beats.getAt(i).updateBeat();
     }
-    for (i = 0; i < this.drums.length; i++) {
-      var drum = this.drums.getAt(i);
+    for (i = 0; i < drums.length; i++) {
+      var drum = drums.getAt(i);
       drum.updateBeat();
     }
 
@@ -278,17 +313,17 @@ GameState.prototype.moveTheBeat = function() {
   return false;
 };
 
-GameState.prototype.moveBeatAndHitDrums = function() {
-  if (this.moveTheBeat()) {
+GameState.prototype.moveBeatAndHitDrums = function(beats, drums) {
+  if (this.moveTheBeat(beats, drums) || this.playAnyway) {
     var i;
     var drum;
     // Check collisions between beats and drums
     // Activate drums that collide with beats
-    for (i = 0; i < this.drums.length; i++) {
-      drum = this.drums.getAt(i);
+    for (i = 0; i < drums.length; i++) {
+      drum = drums.getAt(i);
       var drumGrid = p2g(drum);
-      for (var j = 0; j < this.beats.length; j++) {
-        var beat = this.beats.getAt(j);
+      for (var j = 0; j < beats.length; j++) {
+        var beat = beats.getAt(j);
         var beatGrid = p2g(beat);
         if (drumGrid.x == beatGrid.x && drumGrid.y == beatGrid.y) {
           drum.hit = true;
@@ -303,18 +338,20 @@ GameState.prototype.moveBeatAndHitDrums = function() {
     }
     
     // Hit drums that have been hit with beats, or beat themselves
-    for (i = 0; i < this.drums.length; i++) {
-      drum = this.drums.getAt(i);
+    for (i = 0; i < drums.length; i++) {
+      drum = drums.getAt(i);
       if (drum.hit) {
         drum.play(this.timeLast);
       }
     }
+    this.playAnyway = false;
     return true;
   }
   return false;
 };
 
 GameState.prototype.win = function() {
+  this.game.canvas.style.cursor = "pointer";
   this.sounds.win.play('', 0, 0.3);
   this.hasWon = true;
   // Add win squares all around
@@ -325,9 +362,10 @@ GameState.prototype.win = function() {
       if (x === 0 || y === 0 || x === GRID_SIZE - 1 ||
           (y === GRID_SIZE - 1 && (x < solutionXMin || x >= solutionXMax))) {  
         var pixel = g2p({x:x, y:y});
-        this.solutionDrums.add(new Phaser.Sprite(this.game,
-                                                 pixel.x, pixel.y,
-                                                 'good'));
+        var sd = this.solutionDrums.add(new Phaser.Sprite(
+          this.game, pixel.x, pixel.y, 'good'));
+        sd.width = PIXEL_SIZE;
+        sd.height = PIXEL_SIZE;
       }
     }
   }
@@ -340,66 +378,80 @@ GameState.prototype.update = function() {
   }
   
   if (!this.hasWon) {
-    this.dragDrumAround();
-    
-    if (this.moveBeatAndHitDrums()) {
-      var i;
-      var j;
-      // Check solution too
-      var beats = [];
-      for (i = 0; i < this.drums.length; i++) {
-        drum = this.drums.getAt(i);
-        if (drum.hit) {
-          beats.push(drum.name);
-        }
+    this.dragAndInput();
+
+    // If we're listening to solution, update those beats only
+    if (this.solutionBeats.length !== 0) {
+      this.moveBeatAndHitDrums(this.solutionBeats,
+                               this.correctSolutionDrums);
+      // Special for solution:
+      // destroy beats if they are outside solution area
+      var sRect = getSolutionRect(this.solutionRows,
+                                  this.correctSolution.length);
+      if (this.solutionBeats.getAt(0).x >= sRect.x + sRect.width) {
+        this.solutionBeats.removeAll(true);
       }
-      
-      // Add the drums beaten this beat
-      this.solution.push(beats);
-      // Check our solution so far
-      var ourBeats = this.solution[this.solutionBeat].sort();
-      var correctBeats = [];
-      var isCorrect = true;
-      for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
-        correctBeats.push(this.correctSolution[this.solutionBeat][j].basename);
-      }
-      correctBeats = correctBeats.sort();
-      if (ourBeats.length != correctBeats.length) {
-        isCorrect = false;
-      } else {
-        for (j = 0; j < correctBeats.length; j++) {
-          if (ourBeats[j] != correctBeats[j]) {
-            isCorrect = false;
+    } else {
+      if (this.moveBeatAndHitDrums(this.beats, this.drums)) {
+        var i;
+        var j;
+        // Check solution too
+        var beats = [];
+        for (i = 0; i < this.drums.length; i++) {
+          drum = this.drums.getAt(i);
+          if (drum.hit) {
+            beats.push(drum.name);
           }
         }
-      }
-      // Add a sprite showing whether these beats are correct
-      var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
-      var y = GRID_SIZE - this.solutionRows - 1;
-      var pixel = g2p({x:x, y:y});
-      this.solutionDrums.add(new Phaser.Sprite(this.game,
-                                               pixel.x, pixel.y,
-                                               isCorrect ? 'good' : 'bad'));
-      if (!isCorrect) {
-        this.isCorrect = false;
-      }
-      this.solutionBeat++;
-      if (this.solutionBeat == this.correctSolution.length) {
-        if (this.alwaysWin) {
-          this.isCorrect = true;
+        
+        // Add the drums beaten this beat
+        this.solution.push(beats);
+        // Check our solution so far
+        var ourBeats = this.solution[this.solutionBeat].sort();
+        var correctBeats = [];
+        var isCorrect = true;
+        for (j = 0; j < this.correctSolution[this.solutionBeat].length; j++) {
+          correctBeats.push(this.correctSolution[this.solutionBeat][j].basename);
         }
-        if (this.isCorrect && !this.hasWon) {
-          this.win();
+        correctBeats = correctBeats.sort();
+        if (ourBeats.length != correctBeats.length) {
+          isCorrect = false;
         } else {
-          this.solution = [];
-          this.isCorrect = true;
-          this.solutionBeat = 0;
+          for (j = 0; j < correctBeats.length; j++) {
+            if (ourBeats[j] != correctBeats[j]) {
+              isCorrect = false;
+            }
+          }
+        }
+        // Add a sprite showing whether these beats are correct
+        var x = (GRID_SIZE - this.correctSolution.length) / 2 + this.solutionBeat;
+        var y = GRID_SIZE - this.solutionRows - 1;
+        var pixel = g2p({x:x, y:y});
+        var sd = this.solutionDrums.add(new Phaser.Sprite(
+          this.game, pixel.x, pixel.y, isCorrect ? 'good' : 'bad'));
+        sd.width = PIXEL_SIZE;
+        sd.height = PIXEL_SIZE;
+        if (!isCorrect) {
+          this.isCorrect = false;
+        }
+        this.solutionBeat++;
+        if (this.solutionBeat == this.correctSolution.length) {
+          if (this.alwaysWin) {
+            this.isCorrect = true;
+          }
+          if (this.isCorrect && !this.hasWon) {
+            this.win();
+          } else {
+            this.solution = [];
+            this.isCorrect = true;
+            this.solutionBeat = 0;
+          }
         }
       }
     }
   } else {
     // keep the beat
-    this.moveBeatAndHitDrums();
+    this.moveBeatAndHitDrums(this.beats, this.drums);
     
     // Move to next level
     if (this.game.input.activePointer.justPressed()) {

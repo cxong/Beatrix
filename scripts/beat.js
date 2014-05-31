@@ -4,10 +4,11 @@ var Beat = function(game, parentDrum, vel) {
                      game,
                      parentDrum.x, parentDrum.y,
                      'beat');
+  this.width = PIXEL_SIZE;
+  this.height = PIXEL_SIZE;
   this.vel = vel;
   this.alpha = 0.5;
   this.blendMode = PIXI.blendModes.LIGHTEN;
-  //this.timer = game.time;
 };
 Beat.prototype = Object.create(Phaser.Sprite.prototype);
 Beat.prototype.constructor = Beat;

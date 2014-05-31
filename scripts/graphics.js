@@ -25,3 +25,13 @@ function dir2vel(dir) {
 function msPerMinibeat(bpm) {
   return 60 * 1000 / bpm / 4;
 }
+
+function getSolutionRect(rows, length) {
+  var p = g2p({
+    x: (GRID_SIZE - length) / 2,
+    y: GRID_SIZE - rows - 1});
+  var size = g2p({x: length, y: rows + 1});
+  p.width = size.x;
+  p.height = size.y;
+  return p;
+}

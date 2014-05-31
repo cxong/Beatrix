@@ -38,6 +38,8 @@ var Drum = function(thegame, grid, drumdef, bounceDir, beatDirs, period) {
                      thegame.game,
                      pos.x, pos.y,
                      drumdef.basename);
+  this.width = PIXEL_SIZE;
+  this.height = PIXEL_SIZE;
   // Add bounce indicators
   this.bounce = null;
   if (bounceDir !== null) {
