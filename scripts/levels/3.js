@@ -180,3 +180,52 @@ var level3_4 = {
 "                                "
 ]
 };
+
+
+var levelbonus_1 = {
+  BPM: 80,
+  B : {drum: DrumDefs.BD, beat: ["right"], period: 16},
+  b : {drum: DrumDefs.BD, bounce: "left"},
+  s : {drum: DrumDefs.SD, bounce: "down"},
+  h : {drum: DrumDefs.HH},
+  t : {drum: DrumDefs.TAM, bounce: "right"},
+  r : {drum: DrumDefs.RIM, bounce: "left"},
+  solution : [
+    "B   t sb  s r  s",
+    "h h h h h h h h "
+  ],
+  cells : [
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"            h     r             ",
+"              b                 ",
+"                 t              ",
+"          h                     ",
+"             B                  ",
+"               h                ",
+"            s                   ",
+"           h                    ",
+"              s                 ",
+"                  s             ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                ",
+"                                "
+]
+};
