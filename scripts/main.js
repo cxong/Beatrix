@@ -109,6 +109,7 @@ GameState.prototype.loadLevel = function(level) {
   this.solutionDrums.removeAll(true);
   this.beats.removeAll(true);
   this.drums.removeAll(true);
+  this.indicators.removeAll(true);
   this.draggedDrum = null;
   this.solution = [];
   this.correctSolution = [[]];
@@ -170,6 +171,7 @@ GameState.prototype.create = function() {
   this.bg = this.game.add.group();
   this.correctSolutionDrums = this.game.add.group();
   this.solutionDrums = this.game.add.group();
+  this.indicators = this.game.add.group();
   this.beats = this.game.add.group();
   this.drums = this.game.add.group();
   this.draggedDrum = null;
@@ -402,6 +404,7 @@ GameState.prototype.update = function() {
     // Move to next level
     if (this.game.input.activePointer.justPressed()) {
       this.levelIndex++;
+      console.log("Loading level " + this.levelIndex);
       this.loadLevel(levels[this.levelIndex]);
       this.sounds.newLevel.play('', 0, 0.3);
     }

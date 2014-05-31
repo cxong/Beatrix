@@ -38,6 +38,12 @@ var Drum = function(thegame, grid, drumdef, bounceDir, beatDirs, period) {
                      thegame.game,
                      pos.x, pos.y,
                      drumdef.basename);
+  // Add bounce indicators
+  this.bounce = null;
+  if (bounceDir !== null) {
+    this.bounce = thegame.indicators.add(new Indicator(
+      thegame, {x: 0, y: 0}));
+  }
   this.alpha = 1.0;
   this.sound = thegame.game.add.audio(drumdef.randomName());
   this.timer = thegame.game.time;
@@ -82,5 +88,14 @@ Drum.prototype.update = function() {
     var efrac =
       this.timer.elapsedSince(this.beatLast)/beatLen;
     this.alpha = ALPHA + Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
+  }
+  
+  // Move the bounce indicator around
+  if (this.bounce !== null) {
+    var grid = p2g(this);
+    var indicatorPos = g2p({x: grid.x + this.bounceDir.x,
+                             y: grid.y + this.bounceDir.y});
+    this.bounce.x = indicatorPos.x;
+    this.bounce.y = indicatorPos.y;
   }
 };
