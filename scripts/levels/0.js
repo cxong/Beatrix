@@ -11,6 +11,7 @@ var screenStart = {
   B : {drum: DrumDefs.BD, beat: ["right", "up"], period: 16},
   o : {drum: DrumDefs.HO},
   x : {drum: DrumDefs.BLO},
+  solution : ["        "],
   cells : [
 "          xxxxx                 ",
 "          xxxxxx                ",
@@ -60,6 +61,7 @@ var screenEasy = {
   B : {drum: DrumDefs.BD, beat: ["down"], period: 16},
   o : {drum: DrumDefs.HO},
   x : {drum: DrumDefs.BLO},
+  solution : ["        "],
   cells : [
 "                                ",
 "            xx                  ",
@@ -112,6 +114,7 @@ var screenTricky = {
   c : {drum: DrumDefs.ME},
   z : {drum: DrumDefs.ME, bounce: "up"},
   x : {drum: DrumDefs.BLO},
+  solution : ["        "],
   cells : [
 " c                              ",
 "                                ",
@@ -165,6 +168,7 @@ var screenWin = {
   w : {drum: DrumDefs.COW},
   z : {drum: DrumDefs.ME, bounce: "up"},
   x : {drum: DrumDefs.BLO},
+  solution : ["        "],
   cells : [
 "  B                           H ",
 "                                ",
@@ -223,6 +227,7 @@ var screenCredits = {
   x : {drum: DrumDefs.BLO},
   z : {drum: DrumDefs.BHI},
   Z : {drum: DrumDefs.BHI, beat: ["right"], period: 32},
+  solution : ["        "],
   cells : [
 "          bi                    ",
 "   ccooo bb mm  hh              ",
