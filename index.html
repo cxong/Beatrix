@@ -13,6 +13,7 @@
         <script src="scripts/levels/2.js"></script>
         <script src="scripts/levels/3.js"></script>
         <script src="scripts/main.js"></script>
+        <script src="scripts/preload.js"></script>
         <script src="scripts/boot.js"></script>
         <style type="text/css">
         body{
@@ -29,6 +30,7 @@
         window.onload = function() {
             var game = new Phaser.Game(GRID_SIZE*PIXEL_SIZE, GRID_SIZE*PIXEL_SIZE, Phaser.AUTO, 'gameContainer');
             game.state.add('boot', BasicGame.Boot);
+            game.state.add('preload', BasicGame.Preload);
             game.state.add('game', GameState);
             game.state.start('boot');
         
