@@ -5,7 +5,8 @@ var levels = [screenStart,
               screenTricky,
               level3_1, level3_2, level3_3, level3_4,
               screenWin, screenCredits,
-              levelbonus_1];
+              levelbonus_1,
+              screenEnd];
 
 var GameState = function(game){};
 
