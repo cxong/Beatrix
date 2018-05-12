@@ -149,7 +149,7 @@ GameState.prototype.create = function() {
     place: this.game.add.audio("place")
   };
   
-  this.timeLast = this.game.time.now;
+  this.timeAccumMS = 0;
   this.bg = this.game.add.group();
   this.solutionBg = this.game.add.group();
   this.correctSolutionDrums = this.game.add.group();
@@ -262,7 +262,7 @@ GameState.prototype.dragAndInput = function() {
       // Can't drag drums that make beats
       if (drum !== null && drum.beatDirs === null && drum !== this.rolloverDrum) {
         this.sounds.rollover.play();
-        drum.beatLast = this.game.time.now;
+        drum.beatLast = 0;
       }
       this.rolloverDrum = drum;
     }
@@ -270,10 +270,9 @@ GameState.prototype.dragAndInput = function() {
 };
 
 GameState.prototype.moveTheBeat = function(beats, drums) {
-  if (this.game.time.elapsedSince(this.timeLast) > msPerMinibeat(this.BPM)) {
-    while (this.timeLast + msPerMinibeat(this.BPM) < this.game.time.now) {
-      this.timeLast += msPerMinibeat(this.BPM);
-    }
+  this.timeAccumMS += this.game.time.elapsedMS;
+  if (this.timeAccumMS > msPerMinibeat(this.BPM)) {
+    this.timeAccumMS = this.timeAccumMS % msPerMinibeat(this.BPM);
     if (this.solutionBeat === 0) {
       this.solutionDrums.removeAll(true);
     }
@@ -319,7 +318,7 @@ GameState.prototype.moveBeatAndHitDrums = function(beats, drums) {
     for (i = 0; i < drums.length; i++) {
       drum = drums.getAt(i);
       if (drum.hit) {
-        drum.play(this.timeLast);
+        drum.play(this.timeAccumMS);
       }
     }
     this.playAnyway = false;

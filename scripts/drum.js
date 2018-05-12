@@ -78,17 +78,17 @@ Drum.prototype.updateBeat = function() {
     this.beatsLeft--;
   }
 };
-Drum.prototype.play = function(now) {
+Drum.prototype.play = function() {
   this.sound.play();
-  this.beatLast = now;
+  this.beatLast = 0;
 };
 Drum.prototype.update = function() {
-  var beatLen = 60 * 1000 / 120 / 4;
-  if (this.beatLast + beatLen < this.timer.now) {
+  var beatLen = 60 * 4 * 1000 / 120 / 4;
+  this.beatLast += this.timer.elapsedMS;
+  if (this.beatLast > beatLen) {
     this.alpha = 1.0;
   } else {
-    var efrac =
-      this.timer.elapsedSince(this.beatLast)/beatLen;
+    var efrac = this.beatLast / beatLen;
     this.alpha = ALPHA + Phaser.Easing.Cubic.Out(efrac)*(1 - ALPHA);
   }
   
